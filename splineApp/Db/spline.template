@@ -12,6 +12,8 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
   field(FTB, "STRING")
   field(INPA, "$(DEV):$(LOCA):$(UNIT):POINT1")
   field(INPC, "$(DEV):$(LOCA):$(UNIT):POINT2")
+  field(INPD, "data.txt")
+  field(FTD, "STRING") 
   field(PINI, "YES")
 }
 

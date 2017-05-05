@@ -139,15 +139,19 @@ long initTest(aSubRecord *psub){
 long initSpline(aSubRecord *psub){
   printf("Subroutine Initialized\n");
   char** valb;
+  char** vald;
   double* vala;
   double* valc;
   vala = (double *) psub->a;
   valb = (char**) psub->b;
   vala = (double *) psub->c;
+  vald = (char**) psub->d;
   
+  printf("LINK = %s\n", psub->inpd);
   printf("VAL A = %f\n",vala[0]);
   printf("VAL B = %s\n",valb);
   printf("VAL C = %f\n",valc[0]);
+  printf("VAL D = %s\n",vald[0]);
   /*  alglib::real_1d_array k;
     alglib::real_1d_array gap;
     char*  filename;
