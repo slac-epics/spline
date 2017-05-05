@@ -13,23 +13,11 @@
 
 #include "spline_interp.h"
 
+//TODO write inverse spline
+
 spline::spline s ;
 
-/*
-*
-* initSpline(struct subRecord *psub)
-* -called by EPICS record initialization
-* -parses k,gap data file and create interpolation
-*
-*/
-long initSpline(char* filename){
-  printf("Subroutine Initialized\n");
-   
-  s =  spline (filename);
-  return 0;
-}
-
-
+char path[1024] = "/u/cd/jpdef/workspace/Spline/Spline/splineApp/src/";
 
 /*
 *
@@ -42,36 +30,45 @@ long initSpline(char* filename){
 static long splineIt(aSubRecord *psub){
   printf("Subroutine called\n");
   double* vala;
-  char** valb;
-  vala = (double *) psub->a;
-  valb = (char**) psub->b;
- 
+  char* valb;
+  vala = (double*) psub->a;
+  valb = (char*) psub->b;
+
   #ifdef DEBUG 
     printf("VAL A = %f\n",vala[0]);
     printf("VAL B = %s\n",valb);
     printf("LINKA = %s\n", psub->inpa);
     printf("LINKB = %s\n", psub->inpb);
   #endif
-
-  if (s.isInitialized() ){
-    //TODOmight want to reduce function and put inline
-    char* filename = valb[0];
-    initSpline(filename);
+  if ( ! s.isInitialized() ){
+    char filename[40];
+    strcpy(filename,valb);
+    strcat(path,filename);
+  #ifdef DEBUG 
+    printf("Subroutine Initialized\n");
+    printf("%s\n",path);
+  #endif
+    //B field contians name of file
+    s =  spline ( path  );
+  
 
   }else{
-   double eval_point;
-   double* vala =  (double *)  psub->a ;
-   eval_point = vala[0];
-   
-   //TODO find which field to assign to 
-   psub->val = s.calc(eval_point);
+  #ifdef DEBUG 
+    printf("Subroutine executed\n");
+  #endif
+  
+   double ina = vala[0] ;
+    //TODO find which field to assign to 
+   double val[1];
+   val[0]  = s.calc(ina);
+  #ifdef DEBUG 
+    printf("%f = F(%f)\n",val[0],ina);
+  #endif
+    *(double *)(psub->vala) = val[0];
   }
   
 
   return 0;    
 }
 
-//epicsRegisterFunction(initSpline);
-//TODO write inverse mapp
-//epicsRegisterFunction(initSplineInv);
 epicsRegisterFunction(splineIt);

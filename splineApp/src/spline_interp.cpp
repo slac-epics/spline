@@ -1,14 +1,15 @@
 #include<spline_interp.h>
+#define DEBUG
 
-spline::spline(){
-   initialized=true;
-}
 
 spline::spline(char* filename){
-
+    initialized = true;
+    #ifdef DEBUG
+       printf("%s\n",filename);
+    #endif
     std::ifstream file( filename );
     int N = extract_points(file,&k,&gap);
-    //file.close();
+    file.close();
   
     #ifdef DEBUG
     printf("Extracted %d points\n",N);

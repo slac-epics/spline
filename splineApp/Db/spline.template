@@ -6,26 +6,21 @@
 
 
 record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
-  field(INAM, "initSpline")
   field(SNAM, "splineIt")
+  field(INPA, "$(DEV):$(LOCA):$(UNIT):POINT")
   field(INPB, "$(DEV):$(LOCA):$(UNIT):FNAME")
-  field(FTB, "STRING")
-  field(INPA, "$(DEV):$(LOCA):$(UNIT):POINT1")
-  field(INPC, "$(DEV):$(LOCA):$(UNIT):POINT2")
-  field(INPD, "data.txt")
-  field(FTD, "STRING") 
+ :wq
+ field(FTB, "STRING")
   field(PINI, "YES")
 }
 
 record(stringin, "$(DEV):$(LOCA):$(UNIT):FNAME") {
-  field(VAL, "data.txt")
+  field(VAL, "pid_fit_k.data")
   field(PINI, "YES")
 }
 
-record(ai, "$(DEV):$(LOCA):$(UNIT):POINT1") {
-}
 
-record(ai, "$(DEV):$(LOCA):$(UNIT):POINT2") {
+record(ai, "$(DEV):$(LOCA):$(UNIT):POINT") {
   field(VAL, "42")
   field(PINI, "YES")
 }

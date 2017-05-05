@@ -22,10 +22,10 @@ class spline{
 
   public:
   /*default contructor*/
-  spline();
+  spline(){initialized=false;};
   /*contructor that takes data file*/
   spline(char* filename);
-  
+
   bool isInitialized();
   double calc(double point);
   std::vector<std::string> spilt(std::string str, char delimiter);
