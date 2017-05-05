@@ -59,6 +59,7 @@ spline_SRCS_vxWorks += -nil-
 # For example, subroutines
 # ========================================================================
 spline_SRCS += splinesub.cpp
+spline_SRCS += spline_interp.cpp
 
 # =====================================================
 # Link in the code from other libraries
