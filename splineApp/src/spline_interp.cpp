@@ -1,7 +1,7 @@
 #include<spline_interp.h>
 
 spline::spline(){
-   empty=true;
+   initialized=true;
 }
 
 spline::spline(char* filename){
@@ -26,8 +26,8 @@ double spline::calc(double point){
 }
 
 
-bool spline::isEmpty(){
-    return empty;
+bool spline::isInitialized(){
+    return initialized;
 }
 
 

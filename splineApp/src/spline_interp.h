@@ -18,13 +18,15 @@ class spline{
   alglib::real_1d_array k;
   alglib::real_1d_array gap;
   alglib::spline1dinterpolant interp;
-  bool empty ;
+  bool initialized ;
 
   public:
-  spline(char* filename);
+  /*default contructor*/
   spline();
+  /*contructor that takes data file*/
+  spline(char* filename);
   
-  bool isEmpty();
+  bool isInitialized();
   double calc(double point);
   std::vector<std::string> spilt(std::string str, char delimiter);
   void parseFile(std::ifstream &f, std::vector<double> &x, std::vector<double> &y);

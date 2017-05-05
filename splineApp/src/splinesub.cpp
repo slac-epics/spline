@@ -53,7 +53,7 @@ static long splineIt(aSubRecord *psub){
     printf("LINKB = %s\n", psub->inpb);
   #endif
 
-  if (s.isEmpty() ){
+  if (s.isInitialized() ){
     //TODOmight want to reduce function and put inline
     char* filename = valb[0];
     initSpline(filename);
