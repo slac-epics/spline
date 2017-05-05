@@ -13,7 +13,7 @@
 
 #include "spline_interp.h"
 
-spline::spline s;
+spline::spline s ;
 
 /*
 *
@@ -25,8 +25,7 @@ spline::spline s;
 long initSpline(char* filename){
   printf("Subroutine Initialized\n");
    
-  std::string filename_str (filename);
-  spline::spline s(filename_str);
+  s =  spline (filename);
   return 0;
 }
 
@@ -54,7 +53,7 @@ static long splineIt(aSubRecord *psub){
     printf("LINKB = %s\n", psub->inpb);
   #endif
 
-  if (s.isEmpty){
+  if (s.isEmpty() ){
     //TODOmight want to reduce function and put inline
     char* filename = valb[0];
     initSpline(filename);

@@ -14,17 +14,22 @@
 
 //Object that holds spline
 class spline{
+  
   alglib::real_1d_array k;
   alglib::real_1d_array gap;
   alglib::spline1dinterpolant interp;
-  bool isEmpty = True;
+  bool empty ;
 
-   spline(std::string filename);
-
-  std::vector<std::string> spline::spilt(std::string str, char delimiter);
-  void spline::parseFile(std::ifstream &f, std::vector<double> &x, std::vector<double> &y);
-  int spline::extract_points(std::ifstream &f, alglib::real_1d_array* AX, alglib::real_1d_array* AY );
-}
+  public:
+  spline(char* filename);
+  spline();
+  
+  bool isEmpty();
+  double calc(double point);
+  std::vector<std::string> spilt(std::string str, char delimiter);
+  void parseFile(std::ifstream &f, std::vector<double> &x, std::vector<double> &y);
+  int extract_points(std::ifstream &f, alglib::real_1d_array* AX, alglib::real_1d_array* AY );
+};
 
 
 #endif

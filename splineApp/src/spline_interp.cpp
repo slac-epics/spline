@@ -1,11 +1,15 @@
 #include<spline_interp.h>
 
-spline(std::string filename){
+spline::spline(){
+   empty=true;
+}
 
-    std::ifstream file ( filename  );
+spline::spline(char* filename){
+
+    std::ifstream file( filename );
     int N = extract_points(file,&k,&gap);
-    file.close();
-    
+    //file.close();
+  
     #ifdef DEBUG
     printf("Extracted %d points\n",N);
     #endif
@@ -13,12 +17,17 @@ spline(std::string filename){
     alglib::spline1dbuildcubic(k,gap,N,0,0,0,0,interp);
 
     #ifdef DEBUG
-    printf("Build interpolation @ %p\n",&d);
+    printf("Build interpolation @ %p\n",&interp);
     #endif
 }
 
 double spline::calc(double point){
      return alglib::spline1dcalc(interp,point) ;
+}
+
+
+bool spline::isEmpty(){
+    return empty;
 }
 
 
