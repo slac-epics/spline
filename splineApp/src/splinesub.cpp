@@ -11,6 +11,7 @@
 #include<dbAccess.h>
 #define DEBUG
 
+#include<spline_interp.h>
 
 spline::Spline s;
 
@@ -24,8 +25,8 @@ spline::Spline s;
 long initSpline(char** filename){
   printf("Subroutine Initialized\n");
    
-  std::string filename_str(filename)
-  spline::Spline s(filename_str)
+  std::string filename_str(filename);
+  spline::Spline s(filename_str);
   return 0;
 }
 
@@ -60,10 +61,10 @@ static long splineIt(aSubRecord *psub){
   }else{
    double eval_point;
    double* vala =  (double *)  psub->a ;
-   eval_point = input_a[0];
+   eval_point = vala[0];
    
-   //TODO assign type to vala
-   psub->val = alglib::spline1dcalc(s.interp,eval_point) ;
+   //TODO find which field to assign to 
+   psub-val = s.calc(eval_point);
   }
   
 
