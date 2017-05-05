@@ -11,9 +11,9 @@
 #include<dbAccess.h>
 #define DEBUG
 
-#include<spline_interp.h>
+#include "spline_interp.h"
 
-spline::Spline s;
+spline::spline s;
 
 /*
 *
@@ -22,11 +22,11 @@ spline::Spline s;
 * -parses k,gap data file and create interpolation
 *
 */
-long initSpline(char** filename){
+long initSpline(char* filename){
   printf("Subroutine Initialized\n");
    
-  std::string filename_str(filename);
-  spline::Spline s(filename_str);
+  std::string filename_str (filename);
+  spline::spline s(filename_str);
   return 0;
 }
 
@@ -56,7 +56,8 @@ static long splineIt(aSubRecord *psub){
 
   if (s.isEmpty){
     //TODOmight want to reduce function and put inline
-    initSpline();
+    char* filename = valb[0];
+    initSpline(filename);
 
   }else{
    double eval_point;
@@ -64,7 +65,7 @@ static long splineIt(aSubRecord *psub){
    eval_point = vala[0];
    
    //TODO find which field to assign to 
-   psub-val = s.calc(eval_point);
+   psub->val = s.calc(eval_point);
   }
   
 
