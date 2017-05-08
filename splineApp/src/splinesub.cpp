@@ -9,15 +9,33 @@
 #include<dbCommon.h>
 #include<recSup.h>
 #include<dbAccess.h>
-#define DEBUG
 
 #include "spline_interp.h"
+
+//#define DEBUG
 
 //TODO write inverse spline
 
 spline::spline s ;
 
-char path[1024] = "/u/cd/jpdef/workspace/Spline/Spline/splineApp/src/";
+
+
+/*
+*
+* makePath(struct subRecord *psub)
+* -creates absolute path to data file
+*
+*/
+static char* makePath(char* filename){
+    char* abspath = getenv("PWD");
+    char* relpath = getenv("TOP");
+    strcat(abspath,"/");
+    strcat(abspath,relpath);
+    strcat(abspath,"/splineApp/src/");
+    strcat(abspath,filename);
+    return abspath;
+}
+
 
 /*
 *
@@ -29,46 +47,54 @@ char path[1024] = "/u/cd/jpdef/workspace/Spline/Spline/splineApp/src/";
 */
 static long splineIt(aSubRecord *psub){
   printf("Subroutine called\n");
-  double* vala;
-  char* valb;
-  vala = (double*) psub->a;
-  valb = (char*) psub->b;
+  
+  //Cast EPICS fields to correct types
+  double* inpa;
+  char* inpb;
+  inpa = (double*) psub->a;
+  inpb = (char*) psub->b;
 
   #ifdef DEBUG 
-    printf("VAL A = %f\n",vala[0]);
-    printf("VAL B = %s\n",valb);
+    printf("VAL A = %f\n", inpa[0]);
+    printf("VAL B = %s\n", inpb);
     printf("LINKA = %s\n", psub->inpa);
     printf("LINKB = %s\n", psub->inpb);
   #endif
+
+  /*If this is first call then initialize
+  the spline*/
   if ( ! s.isInitialized() ){
+    //B field contians name of file
     char filename[40];
-    strcpy(filename,valb);
-    strcat(path,filename);
+    strcpy(filename,inpb);
+    char* abspath = makePath(filename);
+  
   #ifdef DEBUG 
     printf("Subroutine Initialized\n");
-    printf("%s\n",path);
+    printf("%s\n",abspath);
   #endif
-    //B field contians name of file
-    s =  spline ( path  );
+    
+    s =  spline ( abspath  );
   
 
   }else{
+  
   #ifdef DEBUG 
     printf("Subroutine executed\n");
   #endif
   
-   double ina = vala[0] ;
-    //TODO find which field to assign to 
-   double val[1];
-   val[0]  = s.calc(ina);
+   double in = inpa[0] ;
+   double out[1];
+   out[0]  = s.calc(in);
   #ifdef DEBUG 
-    printf("%f = F(%f)\n",val[0],ina);
+    printf("%f = F(%f)\n",out[0],in);
   #endif
-    *(double *)(psub->vala) = val[0];
+    *(double *)(psub->vala) = out[0];
   }
   
 
   return 0;    
 }
+
 
 epicsRegisterFunction(splineIt);

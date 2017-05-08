@@ -1,7 +1,14 @@
 #include<spline_interp.h>
-#define DEBUG
+//#define DEBUG
 
-
+/*
+*
+* spline::spline(char* filename)
+* -constructor generates spline object from data file.
+*  k, gap values are read in from data file. Then interpolation
+*  is built
+*
+*/
 spline::spline(char* filename){
     initialized = true;
     #ifdef DEBUG
@@ -22,11 +29,28 @@ spline::spline(char* filename){
     #endif
 }
 
+
+
+/*
+*
+* spline::calc(double point)
+* -calculates the value of the interpolated function
+*  at passed in point
+*
+*/
 double spline::calc(double point){
      return alglib::spline1dcalc(interp,point) ;
 }
 
 
+/*
+*
+* spline::isInitialized()
+* -returns copy of private flag indicating
+*  whether a constructor to intialize k, gap
+*  values was called
+*
+*/
 bool spline::isInitialized(){
     return initialized;
 }
@@ -82,9 +106,11 @@ void spline::parseFile(std::ifstream &f, std::vector<double> &x, std::vector<dou
 * extract_points(FILE* f, alglib::real_1d_array* AX, alglib::real_1d_array* AY )
 * -reads files then parses data into the alglib standard arrays
 * -files is assumed to be csv with pairs of values x,y
+* -returns number of points
 *
 */
-int spline::extract_points(std::ifstream &f, alglib::real_1d_array* AX, alglib::real_1d_array* AY ){
+int spline::extract_points(std::ifstream &f, alglib::real_1d_array* AX, 
+                           alglib::real_1d_array* AY ){
   std::vector<double> x;
   std::vector<double> y;
   parseFile(f,x,y);

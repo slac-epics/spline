@@ -7,10 +7,10 @@
 
 record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
   field(SNAM, "splineIt")
-  field(INPA, "$(DEV):$(LOCA):$(UNIT):POINT")
+  field(INPA, "$(DEV):$(LOCA):$(UNIT):K")
+  field(OUTA, "$(DEV):$(LOCA):$(UNIT):GAP")
   field(INPB, "$(DEV):$(LOCA):$(UNIT):FNAME")
- :wq
- field(FTB, "STRING")
+  field(FTB, "STRING")
   field(PINI, "YES")
 }
 
@@ -20,9 +20,12 @@ record(stringin, "$(DEV):$(LOCA):$(UNIT):FNAME") {
 }
 
 
-record(ai, "$(DEV):$(LOCA):$(UNIT):POINT") {
+record(ai, "$(DEV):$(LOCA):$(UNIT):K") {
   field(VAL, "42")
-  field(PINI, "YES")
+  field(FLNK, "$(DEV):$(LOCA):$(UNIT):TRANS")
+}
+
+record(ao, "$(DEV):$(LOCA):$(UNIT):GAP") {
 }
 
 #! Further lines contain data used by VisualDCT
