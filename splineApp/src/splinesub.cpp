@@ -12,7 +12,6 @@
 
 #include "spline_interp.h"
 
-//#define DEBUG
 
 //TODO write inverse spline
 
@@ -27,11 +26,13 @@ spline::spline s ;
 *
 */
 static char* makePath(char* filename){
-    char* abspath = getenv("PWD");
-    char* relpath = getenv("TOP");
+    char abspath[1024] = "";
+    char* dir1 = getenv("IOC_DATA");
+    char* dir2 = getenv("IOC");
+    strcat(abspath,dir1);
     strcat(abspath,"/");
-    strcat(abspath,relpath);
-    strcat(abspath,"/splineApp/src/");
+    strcat(abspath,dir2);
+    strcat(abspath,"/measurements/");
     strcat(abspath,filename);
     return abspath;
 }

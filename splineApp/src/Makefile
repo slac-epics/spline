@@ -18,11 +18,11 @@ PROD_IOC = spline
 #My external library
 #========================================================
 
-USR_INCLUDES += -I/u/cd/jpdef/workspace/Spline/alglib/src
+USR_INCLUDES += -I/u/cd/jpdef/workspace/SplineEPICS/alglib/src
 
 # PATH TO THE EXTERNAL LIBRARIES
 #===================================
-alg_DIR=/u/cd/jpdef/workspace/Spline/alglib/lib
+alg_DIR=/u/cd/jpdef/workspace/SplineEPICS/alglib/lib
 
 # LINK EXTERNAL LIBRARIES STATICALLY
 #====================================

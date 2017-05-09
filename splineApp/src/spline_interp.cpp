@@ -1,5 +1,4 @@
-#include<spline_interp.h>
-//#define DEBUG
+#include "spline_interp.h"
 
 /*
 *

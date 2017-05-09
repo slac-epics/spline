@@ -19,7 +19,7 @@ spline_registerRecordDeviceDriver(pdbbase)
 # Setup environment variables
 epicsEnvSet("ENGINEER","Jacob DeFilippis")
 epicsEnvSet("LOCATION","??")
-tester("foo");
+epicsEnvSet("IOC_DATA","/nfs/slac/g/lcls/epics/ioc/data")
 # =====================================================================
 ## Load record instances
 dbLoadRecords("db/k_to_gap.db","user=jpdefHost")

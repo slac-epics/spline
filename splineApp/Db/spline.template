@@ -15,13 +15,12 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
 }
 
 record(stringin, "$(DEV):$(LOCA):$(UNIT):FNAME") {
-  field(VAL, "pid_fit_k.data")
+  field(VAL, "$(FILENAME)")
   field(PINI, "YES")
 }
 
 
 record(ai, "$(DEV):$(LOCA):$(UNIT):K") {
-  field(VAL, "42")
   field(FLNK, "$(DEV):$(LOCA):$(UNIT):TRANS")
 }
 

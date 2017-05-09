@@ -10,7 +10,7 @@
 #include<string.h>
 #include<assert.h>
 
-//#define DEBUG
+#define DEBUG
 
 //Object that holds spline
 class spline{
