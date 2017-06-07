@@ -1,22 +1,28 @@
+/*Standard libs*/
 #include<stdlib.h>
 #include<stdio.h>
+#include<stdarg.h>
 
+/*EPICS libs*/
 #include <iocsh.h>
-#include<epicsExport.h>
-#include<registryFunction.h>
-#include<dbDefs.h>
-#include<aSubRecord.h>
-#include<dbCommon.h>
-#include<recSup.h>
-#include<dbAccess.h>
+#include <epicsExport.h>
+#include <registryFunction.h>
+#include <dbDefs.h>
+#include <aSubRecord.h>
+#include <dbCommon.h>
+#include <recSup.h>
+#include <dbAccess.h>
 
+/*Local libs*/
 #include "spline_interp.h"
 
 
-//TODO write inverse spline
 
-spline::spline s ;
 
+typedef std::vector< std::pair<aSubRecord*,spline::spline> > SplineContainer;
+
+/*Main data structure*/
+SplineContainer scon;
 
 
 /*
@@ -25,8 +31,8 @@ spline::spline s ;
 * -creates absolute path to data file
 *
 */
-static char* makePath(char* filename){
-    char abspath[1024] = "";
+static void  makePath(char* abspath, char* filename){
+    //TODO if IOC_DATA/IOC fails check local dir
     char* dir1 = getenv("IOC_DATA");
     char* dir2 = getenv("IOC");
     strcat(abspath,dir1);
@@ -34,8 +40,37 @@ static char* makePath(char* filename){
     strcat(abspath,dir2);
     strcat(abspath,"/measurements/");
     strcat(abspath,filename);
-    return abspath;
 }
+
+
+static void initSplines(aSubRecord* psub){
+    char filename[40]  = "";
+    char abspath[1024] = "";
+    char* inpb;
+
+    inpb = (char*) psub->b;
+    strcpy(filename,inpb);
+    makePath(& (abspath[0]) , filename);
+    
+    debugPrintf("Subroutine Initialized\n");
+    debugPrintf("%s\n",abspath);
+
+    scon.push_back( std::make_pair( psub, spline(abspath) ) );
+}
+
+
+static spline getSplineFromContainer(aSubRecord* psub){
+  spline s;
+   SplineContainer::iterator it = scon.begin();
+    for (; it !=scon.end() ; ++it ){
+       if ((*it).first == psub){
+          return (*it).second; 
+       }
+    }
+    return s;
+}
+
+
 
 
 /*
@@ -47,55 +82,38 @@ static char* makePath(char* filename){
 *
 */
 static long splineIt(aSubRecord *psub){
-  printf("Subroutine called\n");
+  debugPrintf("Subroutine called\n");
+  spline s;
   
-  //Cast EPICS fields to correct types
-  double* inpa;
-  char* inpb;
+  //Cast EPICS fields to correct types and grab transformation
+  //that is paired with the record
+  double* inpa; char* inpb; int* inpc;
+  double out[1];
   inpa = (double*) psub->a;
   inpb = (char*) psub->b;
+  inpc = (int* ) psub->c;
+  s = getSplineFromContainer(psub);
 
-  #ifdef DEBUG 
-    printf("VAL A = %f\n", inpa[0]);
-    printf("VAL B = %s\n", inpb);
-    printf("LINKA = %s\n", psub->inpa);
-    printf("LINKB = %s\n", psub->inpb);
-  #endif
-
+  debugPrintf("VAL A = %f\nVAL B = %s\nVAL C = %d\n", inpa[0],inpb,inpc[0]);
+  debugPrintf("LINKA = %s\nLINKB = %s\n", psub->inpa,psub->inpb);
+  
   /*If this is first call then initialize
   the spline*/
-  if ( ! s.isInitialized() ){
-    //B field contians name of file
-    char filename[40];
-    strcpy(filename,inpb);
-    char* abspath = makePath(filename);
-  
-  #ifdef DEBUG 
-    printf("Subroutine Initialized\n");
-    printf("%s\n",abspath);
-  #endif
-    
-    s =  spline ( abspath  );
-  
+  if ( ! s.isInitialized() ) {
+    initSplines(psub);
+  } else {
+    debugPrintf("Subroutine executed\n");
+    double in = inpa[0] ;
+    double isInverse = inpc[0];
 
-  }else{
-  
-  #ifdef DEBUG 
-    printf("Subroutine executed\n");
-  #endif
-  
-   double in = inpa[0] ;
-   double out[1];
-   out[0]  = s.calc(in);
-  #ifdef DEBUG 
-    printf("%f = F(%f)\n",out[0],in);
-  #endif
+    /*Calculate output, then set value a to the output*/
+    out[0] = (isInverse) ? s.calcInv(in) : s.calc(in);
+    debugPrintf("%f = F(%f)\n",out[0],in);
     *(double *)(psub->vala) = out[0];
+  
   }
   
-
   return 0;    
 }
-
 
 epicsRegisterFunction(splineIt);

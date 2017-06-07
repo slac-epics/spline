@@ -1,5 +1,5 @@
 #include "spline_interp.h"
-
+#include "debug.h"
 /*
 *
 * spline::spline(char* filename)
@@ -9,25 +9,30 @@
 *
 */
 spline::spline(char* filename){
+    //Indicate class has been constructed
     initialized = true;
-    #ifdef DEBUG
-       printf("%s\n",filename);
-    #endif
+
+    
+       debugPrintf("%s\n",filename);
+    
+    
+    //Extract measured data from data file
     std::ifstream file( filename );
     int N = extract_points(file,&k,&gap);
     file.close();
   
-    #ifdef DEBUG
-    printf("Extracted %d points\n",N);
-    #endif
+    
+    debugPrintf("Extracted %d points\n",N);
+    
 
+    //Build the spline for forward and inverse transformations
     alglib::spline1dbuildcubic(k,gap,N,0,0,0,0,interp);
-
-    #ifdef DEBUG
-    printf("Build interpolation @ %p\n",&interp);
-    #endif
+    alglib::spline1dbuildcubic(gap,k,N,0,0,0,0,interp_inv);
+    
+    
+    debugPrintf("Built interpolation @ %p and inverse @ %p\n",&interp,&interp_inv);
+    
 }
-
 
 
 /*
@@ -39,6 +44,18 @@ spline::spline(char* filename){
 */
 double spline::calc(double point){
      return alglib::spline1dcalc(interp,point) ;
+}
+
+
+/*
+*
+* spline::calc(double point)
+* -calculates the inverse of the interpolated function
+*  at passed in point
+*
+*/
+double spline::calcInv(double point){
+     return alglib::spline1dcalc(interp_inv,point) ;
 }
 
 
@@ -85,14 +102,15 @@ void spline::parseFile(std::ifstream &f, std::vector<double> &x, std::vector<dou
     char delim = ',';
     if(f.is_open()){
        while( getline(f,line) ){
-           //spilt on comma first element goes to x vector
-	   //second element goes to y vector
-           std::vector<std::string> out = spilt(line,delim);
-	   //file format error
-	   assert(out.size() == 2);
-           
-	   x.push_back( atof(out[0].c_str() )  );
-	   y.push_back( atof(out[1].c_str() )  );
+         //spilt on comma first element goes to x vector
+	       //second element goes to y vector
+	       std::vector<std::string> out = spilt(line,delim);
+	       //file format error
+	       assert(out.size() == 2);
+	       char* off = 0;
+	       debugPrintf(" Readin : %f , %f\n", strtod(out[0].c_str(),&off) , strtod(out[1].c_str(),&off));
+	       x.push_back( atof(out[0].c_str() )  );
+	       y.push_back( atof(out[1].c_str() )  );
        }
     }
 }
@@ -114,29 +132,28 @@ int spline::extract_points(std::ifstream &f, alglib::real_1d_array* AX,
   std::vector<double> y;
   parseFile(f,x,y);
 
-  #ifdef DEBUG
-  printf("%d\n",x.size());
+  
+  debugPrintf("%d\n",x.size());
   for (int i = 0; i < x.size() ; i++){
-      printf("%f,",  x[i]);
-      printf("%f\n", y[i]);
+      debugPrintf("%f,",  x[i]);
+      debugPrintf("%f\n", y[i]);
   }
-  #endif
+  
   
   AX->setcontent(x.size(), &(x[0]));
   AY->setcontent(y.size(), &(y[0]));
 
-  #ifdef DEBUG
+  
   double* xprime = AX->getcontent();
   double* yprime = AY->getcontent();
 
-  printf("%d\n",x.size());
+  debugPrintf("%d\n",x.size());
   for (int i = 0; i < x.size() ; i++){
-      printf("%f,",  xprime[i]);
-      printf("%f\n", yprime[i]);
+      debugPrintf("%f,",  xprime[i]);
+      debugPrintf("%f\n", yprime[i]);
   }
-  #endif
+  
   
   return x.size();
 }
-
 

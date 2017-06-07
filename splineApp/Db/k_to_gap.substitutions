@@ -1,7 +1,0 @@
-file spline.template
-
-{
-  pattern{ DEV, LOCA, UNIT, FILENAME }
-         { UND, B81, MC, pid_fit_k.data}
-
-}

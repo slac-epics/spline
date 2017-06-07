@@ -10,7 +10,7 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------------------
 # Create and install (or just install)
 # databases, templates, substitutions like this
-DB += k_to_gap.db 
+DB += transformations.db 
 
 # ========================================
 # Install timing/event related databases
