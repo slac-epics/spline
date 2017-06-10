@@ -11,6 +11,8 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
   field(OUTA, "$(DEV):$(LOCA):$(UNIT):OUT PP")
   field(INPB, "$(DEV):$(LOCA):$(UNIT):FNAME")
   field(FTB, "STRING")
+  field(FTC, "LONG")
+  field(BRSV, INVALID)
   field(PINI, "YES")
 }
 
@@ -37,6 +39,7 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS_INV") {
   field(INPC, 1) 
   field(FTB, "STRING")
   field(FTC, "LONG")
+  field(BRSV, INVALID)
   field(PINI, "YES")
 }
 

@@ -1,7 +1,7 @@
 /*Standard libs*/
-#include<stdlib.h>
-#include<stdio.h>
-#include<stdarg.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string>
 
 /*EPICS libs*/
 #include <iocsh.h>
@@ -17,8 +17,6 @@
 #include "spline_interp.h"
 
 
-
-
 typedef std::vector< std::pair<aSubRecord*,spline::spline> > SplineContainer;
 
 /*Main data structure*/
@@ -29,38 +27,50 @@ SplineContainer scon;
 *
 * makePath(struct subRecord *psub)
 * -creates absolute path to data file
+* $IOC_DATA/$IOC/measurements/filename [default]
+* ./filename                           [backup]
 *
 */
-static void  makePath(char* abspath, char* filename){
-    //TODO if IOC_DATA/IOC fails check local dir
-    char* dir1 = getenv("IOC_DATA");
-    char* dir2 = getenv("IOC");
-    strcat(abspath,dir1);
-    strcat(abspath,"/");
-    strcat(abspath,dir2);
-    strcat(abspath,"/measurements/");
-    strcat(abspath,filename);
+static std::string  makePath(const char* filename_c_str){
+    const char* ioc_c_str = getenv("IOC");
+    const char* ioc_data_c_str = getenv("IOC_DATA");
+    if (ioc_c_str && ioc_data_c_str){
+       std::string ioc_data(ioc_data_c_str);
+       std::string ioc(ioc_c_str);
+       std::string filename(filename_c_str);
+       std::string path = ioc_data + "/" + ioc + "/measurements/" + filename;
+       return path;
+    } else {
+       return std::string(filename_c_str);
+    }
 }
 
 
+/*
+*
+* initSplines(aSubRecord* psub){
+*   - constructs spline object from datafiles 
+*     places it into container where spline can be
+*     matched with a specific record
+*/
 static void initSplines(aSubRecord* psub){
-    char filename[40]  = "";
-    char abspath[1024] = "";
     char* inpb;
-
     inpb = (char*) psub->b;
-    strcpy(filename,inpb);
-    makePath(& (abspath[0]) , filename);
+    std::string path = makePath(inpb);
     
     debugPrintf("Subroutine Initialized\n");
-    debugPrintf("%s\n",abspath);
-
-    scon.push_back( std::make_pair( psub, spline(abspath) ) );
+    debugPrintf("%s\n",path.c_str());
+    
+    scon.push_back( std::make_pair( psub, spline(path) ) );
 }
 
-
+/*
+* spline getSplineFromContainer(aSubRecord* psub){
+*     -retrieves spline objects from container.
+*      record address indicates which spline to grab
+*/
 static spline getSplineFromContainer(aSubRecord* psub){
-  spline s;
+   spline s;
    SplineContainer::iterator it = scon.begin();
     for (; it !=scon.end() ; ++it ){
        if ((*it).first == psub){
@@ -99,15 +109,27 @@ static long splineIt(aSubRecord *psub){
   
   /*If this is first call then initialize
   the spline*/
-  if ( ! s.isInitialized() ) {
-    initSplines(psub);
+  if ( ! s.is_initialized() ) {
+    try{
+          initSplines(psub);
+    }catch (int e) {
+      if( e < 0 ) {
+        debugPrintf("Intialization failed check data file\n");
+        return e;
+      }
+    } catch (alglib::ap_error a) {
+      debugPrintf("Alglib error: check data file\n");
+      return -1;
+    }
+
   } else {
     debugPrintf("Subroutine executed\n");
+    /*Field C indicates whether process is inverse or forward*/
     double in = inpa[0] ;
     double isInverse = inpc[0];
 
     /*Calculate output, then set value a to the output*/
-    out[0] = (isInverse) ? s.calcInv(in) : s.calc(in);
+    out[0] = (isInverse) ? s.calc_inv(in) : s.calc(in);
     debugPrintf("%f = F(%f)\n",out[0],in);
     *(double *)(psub->vala) = out[0];
   

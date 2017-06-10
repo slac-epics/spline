@@ -11,43 +11,42 @@
 #include <string.h>
 #include <assert.h>
 
-//#include "debug.h"
+#include "debug.h"
 
-//#define DEBUG 
 
 //Object that holds spline
 class spline{
    
-  alglib::real_1d_array k;
-  alglib::real_1d_array gap;
+  alglib::real_1d_array x_a;
+  alglib::real_1d_array y_a;
   alglib::spline1dinterpolant interp;
   alglib::spline1dinterpolant interp_inv;
   /* indicates if object has been contructed or not*/
   bool initialized ;
+  const char* filename;
+  int N;
 
   public:
   
-  /*default contructor*/
-  spline(){initialized=false;};
-  /*contructor that takes data file*/
-  spline(char* filename);
+    /*default contructor*/
+    spline(){initialized=false;};
+    /*contructor that takes data file*/
+    spline(std::string filename);
+  
+  
+    bool is_initialized();
+    double calc(double point);
+    double calc_inv(double point);
+  
+  private:
 
-
-  bool isInitialized();
-  double calc(double point);
-  double calcInv(double point);
-  int extract_points(std::ifstream &f, alglib::real_1d_array* AX, alglib::real_1d_array* AY );
-  void parseFile(std::ifstream &f, std::vector<double> &x, std::vector<double> &y);
-  std::vector<std::string> spilt(std::string str, char delimiter);
+    void parse_file();
+    void set_array_length();
+    std::pair<double,double> parse(std::string line, char delim); 
+    std::vector<std::string> split(std::string str, char delimiter);
 
 };
 
-static void debugPrintf(char* fmt, ...){
-  #ifdef DEBUG
-    va_list contents;
-    fprintf(stderr,fmt,contents);
-  #endif
-}
 
 
 

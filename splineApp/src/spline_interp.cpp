@@ -1,38 +1,5 @@
 #include "spline_interp.h"
 #include "debug.h"
-/*
-*
-* spline::spline(char* filename)
-* -constructor generates spline object from data file.
-*  k, gap values are read in from data file. Then interpolation
-*  is built
-*
-*/
-spline::spline(char* filename){
-    //Indicate class has been constructed
-    initialized = true;
-
-    
-       debugPrintf("%s\n",filename);
-    
-    
-    //Extract measured data from data file
-    std::ifstream file( filename );
-    int N = extract_points(file,&k,&gap);
-    file.close();
-  
-    
-    debugPrintf("Extracted %d points\n",N);
-    
-
-    //Build the spline for forward and inverse transformations
-    alglib::spline1dbuildcubic(k,gap,N,0,0,0,0,interp);
-    alglib::spline1dbuildcubic(gap,k,N,0,0,0,0,interp_inv);
-    
-    
-    debugPrintf("Built interpolation @ %p and inverse @ %p\n",&interp,&interp_inv);
-    
-}
 
 
 /*
@@ -49,12 +16,12 @@ double spline::calc(double point){
 
 /*
 *
-* spline::calc(double point)
+* spline::calcInv(double point)
 * -calculates the inverse of the interpolated function
 *  at passed in point
 *
 */
-double spline::calcInv(double point){
+double spline::calc_inv(double point){
      return alglib::spline1dcalc(interp_inv,point) ;
 }
 
@@ -67,27 +34,68 @@ double spline::calcInv(double point){
 *  values was called
 *
 */
-bool spline::isInitialized(){
+bool spline::is_initialized(){
     return initialized;
 }
 
 
 /*
+*get_num_lines(const std::ifstream& f){
+*   -counts total number of lines in file
+*/
+void spline::set_array_length(){
+  int i = 0;
+
+  std::string line;
+  std::ifstream f( filename );
+  if (f.is_open()){
+      while (getline(f,line)){
+        i++;
+      }
+  }
+  f.close();
+  x_a.setlength(i);
+  y_a.setlength(i);
+  N = i;
+}
+
+
+/*
 *
-* spilt(std::string str, char delimiter){
-*    -spilts string into a vector of string with a charater delimiter
+* split(std::string str, char delimiter){
+*    -splits string into a vector of string with a charater delimiter
 *
 */
-std::vector<std::string> spline::spilt(std::string str, char delimiter){
-    std::vector<std::string> internal;
+std::vector<std::string> spline::split(std::string str, char delimiter){
+    std::vector<std::string> result;
     std::stringstream ss(str);
     std::string tok;
     while (getline(ss,tok,delimiter)){
-        internal.push_back(tok);
+        result.push_back(tok);
     }
 
-    return internal;
+    return result;
 }
+
+
+/*
+*
+* parse(std::string line, char delim)
+*  -parses a line for two tokens (x,y) and returns them as a pair
+*
+*/
+std::pair<double,double> spline::parse(std::string line, char delim){ 
+       /* split on comma first element goes to x vector second y vector*/
+     std::pair<double, double> result;
+     std::vector<std::string> out = split(line,delim);
+     //file format error
+     if (out.size() != 2) throw -1 ;
+     result = std::make_pair( atof(out[0].c_str() ),  atof(out[1].c_str() ) );
+     debugPrintf(" Readin : %f , %f\n", result.first, result.second);
+     if (result.first == 0 || result.second == 0 ) throw -1 ;
+     return result;
+}
+
 
 
 /*
@@ -97,63 +105,47 @@ std::vector<std::string> spline::spilt(std::string str, char delimiter){
 *   and placing them into x,y arrays
 *
 */
-void spline::parseFile(std::ifstream &f, std::vector<double> &x, std::vector<double> &y){
+void spline::parse_file(){
+    char delim = ','; int i = 0;
     std::string line;
-    char delim = ',';
-    if(f.is_open()){
-       while( getline(f,line) ){
-         //spilt on comma first element goes to x vector
-	       //second element goes to y vector
-	       std::vector<std::string> out = spilt(line,delim);
-	       //file format error
-	       assert(out.size() == 2);
-	       char* off = 0;
-	       debugPrintf(" Readin : %f , %f\n", strtod(out[0].c_str(),&off) , strtod(out[1].c_str(),&off));
-	       x.push_back( atof(out[0].c_str() )  );
-	       y.push_back( atof(out[1].c_str() )  );
-       }
+    std::pair<double, double> p;
+
+    std::ifstream f( filename );
+
+    if( f.is_open() ){
+      while( std::getline(f,line) ){
+         debugPrintf("%s\n",line.c_str());
+         p = parse(line,delim);
+         debugPrintf("parsed\n");
+         x_a[i] = p.first;
+         y_a[i] = p.second;
+         i++;
+      }
     }
+    f.close();
 }
-
-
 
 
 /*
 *
-* extract_points(FILE* f, alglib::real_1d_array* AX, alglib::real_1d_array* AY )
-* -reads files then parses data into the alglib standard arrays
-* -files is assumed to be csv with pairs of values x,y
-* -returns number of points
+* spline::spline(std::string filename)
+* -constructor generates spline object from data file.
+*  x, y values are read in from data file. Then interpolation
+*  is built
 *
 */
-int spline::extract_points(std::ifstream &f, alglib::real_1d_array* AX, 
-                           alglib::real_1d_array* AY ){
-  std::vector<double> x;
-  std::vector<double> y;
-  parseFile(f,x,y);
-
-  
-  debugPrintf("%d\n",x.size());
-  for (int i = 0; i < x.size() ; i++){
-      debugPrintf("%f,",  x[i]);
-      debugPrintf("%f\n", y[i]);
-  }
-  
-  
-  AX->setcontent(x.size(), &(x[0]));
-  AY->setcontent(y.size(), &(y[0]));
-
-  
-  double* xprime = AX->getcontent();
-  double* yprime = AY->getcontent();
-
-  debugPrintf("%d\n",x.size());
-  for (int i = 0; i < x.size() ; i++){
-      debugPrintf("%f,",  xprime[i]);
-      debugPrintf("%f\n", yprime[i]);
-  }
-  
-  
-  return x.size();
+spline::spline(std::string filename){
+    //Indicate class has been constructed
+    initialized = true;
+    this->filename = filename.c_str();
+    debugPrintf("%s\n",this->filename);
+    
+    //Extract measured data from data file
+    set_array_length();
+    parse_file();   
+    debugPrintf("Extracted %d points\n",N);
+    //Build the spline for forward and inverse transformations
+    alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
+    alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
+    debugPrintf("Built interpolation @ %p and inverse @ %p\n",&interp,&interp_inv);
 }
-
