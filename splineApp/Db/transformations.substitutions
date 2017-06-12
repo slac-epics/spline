@@ -1,0 +1,7 @@
+file spline.template
+
+{
+  pattern{ DEV, LOCA, UNIT, FILENAME }
+         { UND, TEST, MC, current}
+
+}

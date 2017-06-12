@@ -1,5 +1,4 @@
 #include "spline_interp.h"
-#include "debug.h"
 
 
 /*
@@ -91,7 +90,6 @@ std::pair<double,double> spline::parse(std::string line, char delim){
      //file format error
      if (out.size() != 2) throw -1 ;
      result = std::make_pair( atof(out[0].c_str() ),  atof(out[1].c_str() ) );
-     debugPrintf(" Readin : %f , %f\n", result.first, result.second);
      if (result.first == 0 || result.second == 0 ) throw -1 ;
      return result;
 }
@@ -114,9 +112,7 @@ void spline::parse_file(){
 
     if( f.is_open() ){
       while( std::getline(f,line) ){
-         debugPrintf("%s\n",line.c_str());
          p = parse(line,delim);
-         debugPrintf("parsed\n");
          x_a[i] = p.first;
          y_a[i] = p.second;
          i++;
@@ -138,14 +134,11 @@ spline::spline(std::string filename){
     //Indicate class has been constructed
     initialized = true;
     this->filename = filename.c_str();
-    debugPrintf("%s\n",this->filename);
     
     //Extract measured data from data file
     set_array_length();
     parse_file();   
-    debugPrintf("Extracted %d points\n",N);
     //Build the spline for forward and inverse transformations
     alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
     alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
-    debugPrintf("Built interpolation @ %p and inverse @ %p\n",&interp,&interp_inv);
 }

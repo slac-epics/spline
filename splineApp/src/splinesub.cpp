@@ -58,8 +58,6 @@ static void initSplines(aSubRecord* psub){
     inpb = (char*) psub->b;
     std::string path = makePath(inpb);
     
-    debugPrintf("Subroutine Initialized\n");
-    debugPrintf("%s\n",path.c_str());
     
     scon.push_back( std::make_pair( psub, spline(path) ) );
 }
@@ -92,7 +90,6 @@ static spline getSplineFromContainer(aSubRecord* psub){
 *
 */
 static long splineIt(aSubRecord *psub){
-  debugPrintf("Subroutine called\n");
   spline s;
   s = getSplineFromContainer(psub);
   
@@ -104,8 +101,6 @@ static long splineIt(aSubRecord *psub){
   inpb = (char*) psub->b;
   inpc = (int* ) psub->c;
 
-  debugPrintf("VAL A = %f\nVAL B = %s\nVAL C = %d\n", inpa[0],inpb,inpc[0]);
-  debugPrintf("LINKA = %s\nLINKB = %s\n", psub->inpa,psub->inpb);
   
   /*If this is first call then initialize
   the spline*/
@@ -114,23 +109,19 @@ static long splineIt(aSubRecord *psub){
           initSplines(psub);
     }catch (int e) {
       if( e < 0 ) {
-        debugPrintf("Intialization failed check data file\n");
         return e;
       }
     } catch (alglib::ap_error a) {
-      debugPrintf("Alglib error: check data file\n");
       return -1;
     }
 
   } else {
-    debugPrintf("Subroutine executed\n");
     /*Field C indicates whether process is inverse or forward*/
     double in = inpa[0] ;
     double isInverse = inpc[0];
 
     /*Calculate output, then set value a to the output*/
     out[0] = (isInverse) ? s.calc_inv(in) : s.calc(in);
-    debugPrintf("%f = F(%f)\n",out[0],in);
     *(double *)(psub->vala) = out[0];
   
   }

@@ -11,8 +11,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "debug.h"
-
 
 //Object that holds spline
 class spline{

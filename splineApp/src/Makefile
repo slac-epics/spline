@@ -58,7 +58,6 @@ spline_SRCS_vxWorks += -nil-
 # Add locally compiled object code
 # For example, subroutines
 # ========================================================================
-spline_SRCS += debug.cpp
 spline_SRCS += splinesub.cpp
 spline_SRCS += spline_interp.cpp
 
