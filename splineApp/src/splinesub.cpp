@@ -94,6 +94,7 @@ static spline getSplineFromContainer(aSubRecord* psub){
 static long splineIt(aSubRecord *psub){
   debugPrintf("Subroutine called\n");
   spline s;
+  s = getSplineFromContainer(psub);
   
   //Cast EPICS fields to correct types and grab transformation
   //that is paired with the record
@@ -102,7 +103,6 @@ static long splineIt(aSubRecord *psub){
   inpa = (double*) psub->a;
   inpb = (char*) psub->b;
   inpc = (int* ) psub->c;
-  s = getSplineFromContainer(psub);
 
   debugPrintf("VAL A = %f\nVAL B = %s\nVAL C = %d\n", inpa[0],inpb,inpc[0]);
   debugPrintf("LINKA = %s\nLINKB = %s\n", psub->inpa,psub->inpb);

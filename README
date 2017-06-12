@@ -3,11 +3,11 @@
 #  Name: README
 #
 #  Rem:  
-#        EPICS IOC Application 
+#        EPICS IOC Application SplineApp
 #
 #  Side: None
 #
-#  Auth: XX-Mar-2012,          (XX)
+#  Auth: 10-Jun-2017,          (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name (USERNAME)
 #--------------------------------------------------------------
 #  Mod:
@@ -16,25 +16,23 @@
 #
 #==============================================================
 #
-# NOTE:
-# Please do not type make here !!
-# This module is only a template used by makeBaseApp.pl to create an EPICS IOC Application
+Application supports cubic splining of data. It uses alglib libraries 
+embedded in EPICS aSubRoutine to accomplish the spline. 
 
-This module provides templates that are used by ICD to support our style
-of IOC Application Building for the facilities we support.
-These templates are used by makeBaseApp.pl
-In order to use this template area you must first set 
-"EPICS_MBA_TEMPLATE_TOP" before calling makeBaseApp.pl
-"EPICS_MBA_TEMPLATE_TOP" points to a specific release of the icdTemplates module.
+spline.template contains epics database template to implement a spline and 
+inverse of spline
+There are 4 main records.
+      TRANS : holds subroutines and does calculation
+      FNAME : holds name of file that contains real data points 
+      IN    : input value
+      OUT   : output value
 
-For example,
-mkdir mySandBox
-cd  mySandBox
-export EPICS_MBA_TEMPLATE_TOP=/afs/slac/g/lcls/epics/R3-14-12-3_1-0/modules/icdTemplates/icdTemplates-R1-0-1
-makeBaseApp.pl -t      slac myTest
-makeBaseApp.pl -i  -t  slac myIOC
+To create an inverse INPC of the TRANS record must be set to 1.
 
-At this time I have only created one template called "slac" focused on creating IOC applications.
-Indeed, we can imagine a template focused on creating EPICS drivers or Device support.
+Multiple transformation can be created. 
+Database files must be formatted as a csv non-utf8. It is expected
+all data is non-zero. Subroutine will look for data file inside $IOC_DATA/$IOC/measurements/ or in the current directory.
+
+
 
 # End of file

@@ -28,9 +28,9 @@ double spline::calc_inv(double point){
 
 /*
 *
-* spline::isInitialized()
+* spline::is_initialized()
 * -returns copy of private flag indicating
-*  whether a constructor to intialize k, gap
+*  whether a constructor to intialize x,y 
 *  values was called
 *
 */
@@ -40,7 +40,7 @@ bool spline::is_initialized(){
 
 
 /*
-*get_num_lines(const std::ifstream& f){
+*spline::get_num_lines(){
 *   -counts total number of lines in file
 */
 void spline::set_array_length(){
@@ -100,8 +100,8 @@ std::pair<double,double> spline::parse(std::string line, char delim){
 
 /*
 *
-* parsePoints(std::vector<double> &x, std::vector<double> &y, char* data)
-*  -parses character array, taking numbers from comma seperated values
+* parse_file()
+*  -parses data file, taking numbers from comma seperated values
 *   and placing them into x,y arrays
 *
 */
