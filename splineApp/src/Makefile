@@ -18,15 +18,14 @@ PROD_IOC = spline
 #My external library
 #========================================================
 
-USR_INCLUDES += -I/u/cd/jpdef/workspace/SplineEPICS/alglib/src
-
+USR_INCLUDES += $(ALGLIB_INCLUDE)
 # PATH TO THE EXTERNAL LIBRARIES
 #===================================
-alg_DIR=/u/cd/jpdef/workspace/SplineEPICS/alglib/lib
+alg_DIR=$(ALGLIB_LIB)
 
 # LINK EXTERNAL LIBRARIES STATICALLY
 #====================================
-USR_LIBS_Linux+=alg
+spline_LIBS+=alg
 
 # spline.dbd will be created and installed
 DBD += spline.dbd
