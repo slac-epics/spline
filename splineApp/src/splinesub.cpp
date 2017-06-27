@@ -91,10 +91,10 @@ static spline getSplineFromContainer(aSubRecord* psub){
 */
 static long splineIt(aSubRecord *psub){
   spline s;
+  //Grab subroutine that is paired with the record
   s = getSplineFromContainer(psub);
   
-  //Cast EPICS fields to correct types and grab transformation
-  //that is paired with the record
+  //Cast EPICS fields to correct types
   double* inpa; char* inpb; int* inpc;
   double out[1];
   inpa = (double*) psub->a;
