@@ -5,12 +5,14 @@ include $(TOP)/configure/CONFIG
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 #========================================
 
+
+
 # ================================================
 # Build the IOC application
 # ================================================
 # This will attempt to build an IOC application 
 # for every target including the host computer.
-PROD_IOC = spline
+LIBRARY += spline
 
 # Use the following for RTEMS Only IOCs
 #PROD_IOC_RTEMS = spline
@@ -18,18 +20,18 @@ PROD_IOC = spline
 #My external library
 #========================================================
 
-USR_INCLUDES += $(ALGLIB_INCLUDE)
 # PATH TO THE EXTERNAL LIBRARIES
 #===================================
+USR_INCLUDES += $(ALGLIB_INCLUDE)
 alg_DIR=$(ALGLIB_LIB)
+LIB_INSTALLS += $(ALGLIB_LIB)/libalg.a
 
 # LINK EXTERNAL LIBRARIES STATICALLY
 #====================================
-spline_LIBS+=alg
 
 # spline.dbd will be created and installed
 DBD += spline.dbd
-
+DBD_INSTALLS += subs.dbd
 # spline.dbd will be made up from these files:
 spline_DBD += subs.dbd
 spline_DBD += base.dbd
@@ -37,6 +39,8 @@ spline_DBD += devIocStats.dbd
 spline_DBD += autosaveSupport.dbd
 spline_DBD += caPutLog.dbd
 spline_DBD += $(CEXP_DBDS)
+
+#
 
 # ================================================================================
 # The system command will be mainly used by linux hosted IOCs
@@ -71,6 +75,9 @@ spline_LIBS += autosave
 
 # Needed to link caPutLog support
 spline_LIBS += caPutLog
+
+# Need to link algorighm library
+spline_LIBS += alg
 
 # Needed to link cexpsh() support
 spline_LIBS += $(CEXP_LIBS)

@@ -32,13 +32,11 @@ SplineContainer scon;
 *
 */
 static std::string  makePath(const char* filename_c_str){
-    const char* ioc_c_str = getenv("IOC");
-    const char* ioc_data_c_str = getenv("IOC_DATA");
-    if (ioc_c_str && ioc_data_c_str){
-       std::string ioc_data(ioc_data_c_str);
-       std::string ioc(ioc_c_str);
+    const char* top_c_str = getenv("TOP");
+    if (top_c_str){
+       std::string top(top_c_str);
        std::string filename(filename_c_str);
-       std::string path = ioc_data + "/" + ioc + "/measurements/" + filename;
+       std::string path = top + "/measurements/" + filename;
        return path;
     } else {
        return std::string(filename_c_str);
