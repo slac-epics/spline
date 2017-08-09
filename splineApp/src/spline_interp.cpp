@@ -84,7 +84,7 @@ std::vector<std::string> spline::split(std::string str, char delimiter){
 *
 */
 std::pair<double,double> spline::parse(std::string line, char delim){ 
-       /* split on comma first element goes to x vector second y vector*/
+      /* split on comma first element goes to x vector second y vector*/
      std::pair<double, double> result;
      std::vector<std::string> out = split(line,delim);
      //file format error
@@ -109,8 +109,16 @@ void spline::parse_file(){
     std::pair<double, double> p;
 
     std::ifstream f( filename );
-
+    char b;
     if( f.is_open() ){
+      f.read(&b,10);
+      if ( b!= 0xEF && b!=0xFF){
+         f.clear();
+	 f.seekg(0);
+	 printf("Is not a utf file first byte %c\n",b);
+      }else{
+         printf("Is a utf file, first byte %c\n",b);
+      }
       while( std::getline(f,line) ){
          p = parse(line,delim);
          x_a[i] = p.first;

@@ -11,6 +11,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install)
 # databases, templates, substitutions like this
 DB += transformations.db 
+DB += spline.template 
 
 # ========================================
 # Install timing/event related databases

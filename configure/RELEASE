@@ -78,6 +78,9 @@ RTEMSUTILS=$(EPICS_MODULES)/rtemsutils/$(RTEMSUTILS_MODULE_VERSION)
 
 CEXP=$(EPICS_MODULES)/cexpsh/$(CEXP_MODULE_VERSION)
 
+
+
+
 # EPICS_BASE usually appears last so other apps can override stuff:
 ##EPICS_BASE=/afs/slac/g/lcls/epics/R3-14-12-4_1-0/base/base-R3-14-12-4_1-0
 
@@ -89,3 +92,4 @@ LINUX_KERNEL_MODULES=$(PACKAGE_SITE_TOP)/linuxKernel_Modules
 # Set RULES here if you want to take build rules from somewhere
 # other than EPICS_BASE:
 #RULES=/path/to/epics/support/module/rules/x-y
+SPLINE=/afs/slac.stanford.edu/u/cd/jpdef/workspace/EPICS/Splining/spline/spline-git
