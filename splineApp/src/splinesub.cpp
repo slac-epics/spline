@@ -12,10 +12,10 @@
 #include <dbCommon.h>
 #include <recSup.h>
 #include <dbAccess.h>
+#include <ap.h>
 
 /*Local libs*/
 #include "spline_interp.h"
-
 
 typedef std::vector< std::pair<aSubRecord*,spline::spline> > SplineContainer;
 

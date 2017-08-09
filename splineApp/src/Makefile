@@ -63,7 +63,6 @@ spline_SRCS_vxWorks += -nil-
 # ========================================================================
 spline_SRCS += splinesub.cpp
 spline_SRCS += spline_interp.cpp
-
 # =====================================================
 # Link in the code from other libraries
 # =====================================================
@@ -80,7 +79,7 @@ spline_LIBS += caPutLog
 spline_LIBS += alg
 
 # Needed to link cexpsh() support
-spline_LIBS += $(CEXP_LIBS)
+#spline_LIBS += $(CEXP_LIBS)
 
 spline_LIBS += $(EPICS_BASE_IOC_LIBS)
 
