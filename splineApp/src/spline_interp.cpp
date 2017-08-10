@@ -140,6 +140,7 @@ void spline::parse_file(){
 */
 spline::spline(std::string filename){
     //Indicate class has been constructed
+    printf("spline::spline Filname is %s",filename.c_str());
     initialized = true;
     this->filename = filename.c_str();
     
@@ -149,4 +150,10 @@ spline::spline(std::string filename){
     //Build the spline for forward and inverse transformations
     alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
     alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
+}
+
+
+void spline::dospline(std::string trans_name, std::string filepath){
+
+    printf("spline::dospline test\n");
 }

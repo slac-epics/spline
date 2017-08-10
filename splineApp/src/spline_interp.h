@@ -35,7 +35,7 @@ class spline{
     bool is_initialized();
     double calc(double point);
     double calc_inv(double point);
-  
+    void dospline(std::string trans_name, std::string filepath);
   private:
 
     void parse_file();

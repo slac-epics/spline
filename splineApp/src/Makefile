@@ -63,6 +63,7 @@ spline_SRCS_vxWorks += -nil-
 # ========================================================================
 spline_SRCS += splinesub.cpp
 spline_SRCS += spline_interp.cpp
+#spline_SRCS += spline_shell.cpp
 # =====================================================
 # Link in the code from other libraries
 # =====================================================
