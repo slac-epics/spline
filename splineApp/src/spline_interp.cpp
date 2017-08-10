@@ -85,12 +85,13 @@ std::vector<std::string> spline::split(std::string str, char delimiter){
 */
 std::pair<double,double> spline::parse(std::string line, char delim){ 
       /* split on comma first element goes to x vector second y vector*/
+     printf("spline::parse line = %s\n",line.c_str());
      std::pair<double, double> result;
      std::vector<std::string> out = split(line,delim);
      //file format error
-     if (out.size() != 2) throw -1 ;
+     if (out.size() != 2) {printf("spline::parse Not a pair of values\n"); throw -1 ;}
      result = std::make_pair( atof(out[0].c_str() ),  atof(out[1].c_str() ) );
-     if (result.first == 0 || result.second == 0 ) throw -1 ;
+     //if (result.first == 0 || result.second == 0 ) {printf("spline::parse One of the values was zero\n"); throw -1 ;}
      return result;
 }
 
@@ -114,8 +115,8 @@ void spline::parse_file(){
       f.read(&b,10);
       if ( b!= 0xEF && b!=0xFF){
          f.clear();
-	 f.seekg(0);
-	 printf("Is not a utf file first byte %c\n",b);
+	       f.seekg(0);
+	       printf("Is not a utf file first byte %c\n",b);
       }else{
          printf("Is a utf file, first byte %c\n",b);
       }
@@ -147,13 +148,21 @@ spline::spline(std::string filename){
     //Extract measured data from data file
     set_array_length();
     parse_file();   
+    printf("About to build spline\n");
+    printf("List of arguements for spline...\n");
+    printf("x_a = ..\n");
+    for (int i = 0 ; i < N ; ++i){
+      printf("%f, ",x_a[i] );
+    }
+    printf("\n");
+    printf("y_a = ..\n");
+    for (int i = 0 ; i < N ; ++i){
+      printf("%f, ",y_a[i] );
+    }
+    printf("\n");
     //Build the spline for forward and inverse transformations
     alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
     alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
+    printf("Splines built\n");
 }
 
-
-void spline::dospline(std::string trans_name, std::string filepath){
-
-    printf("spline::dospline test\n");
-}

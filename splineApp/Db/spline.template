@@ -9,15 +9,15 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS") {
   field(SNAM, "splineIt")
   field(INPA, "$(DEV):$(LOCA):$(UNIT):IN")
   field(OUTA, "$(DEV):$(LOCA):$(UNIT):OUT PP")
-  field(INPB, "$(DEV):$(LOCA):$(UNIT):FNAME")
+  field(INPB, "$(DEV):$(LOCA):$(UNIT):TNAME")
   field(FTB, "STRING")
   field(FTC, "LONG")
   field(BRSV, INVALID)
   field(PINI, "YES")
 }
 
-record(stringin, "$(DEV):$(LOCA):$(UNIT):FNAME") {
-  field(VAL, "$(FILENAME)")
+record(stringin, "$(DEV):$(LOCA):$(UNIT):TNAME") {
+  field(VAL, "$(TNAME)")
   field(PINI, "YES")
 }
 
@@ -35,7 +35,7 @@ record(aSub, "$(DEV):$(LOCA):$(UNIT):TRANS_INV") {
   field(SNAM, "splineIt")
   field(INPA, "$(DEV):$(LOCA):$(UNIT):IN_INV")
   field(OUTA, "$(DEV):$(LOCA):$(UNIT):OUT_INV PP")
-  field(INPB, "$(DEV):$(LOCA):$(UNIT):FNAME")
+  field(INPB, "$(DEV):$(LOCA):$(UNIT):TNAME")
   field(INPC, 1) 
   field(FTB, "STRING")
   field(FTC, "LONG")
@@ -57,8 +57,8 @@ record(ao, "$(DEV):$(LOCA):$(UNIT):OUT_INV") {
 #! Field("$(DEV):$(LOCA):$(UNIT):TRANS.INPA",16777215,1,"$(DEV):$(LOCA):$(UNIT):TRANS.INPA")
 #! Link("$(DEV):$(LOCA):$(UNIT):TRANS.INPA","$(DEV):$(LOCA):$(UNIT):POINT.VAL")
 #! Field("$(DEV):$(LOCA):$(UNIT):TRANS.INPB",16777215,1,"$(DEV):$(LOCA):$(UNIT):TRANS.INPB")
-#! Link("$(DEV):$(LOCA):$(UNIT):TRANS.INPB","$(DEV):$(LOCA):$(UNIT):FNAME.VAL")
-#! Record("$(DEV):$(LOCA):$(UNIT):FNAME",24891,24728,0,1,"$(DEV):$(LOCA):$(UNIT):FNAME")
-#! Field("$(DEV):$(LOCA):$(UNIT):FNAME.VAL",16777215,0,"$(DEV):$(LOCA):$(UNIT):FNAME.VAL")
+#! Link("$(DEV):$(LOCA):$(UNIT):TRANS.INPB","$(DEV):$(LOCA):$(UNIT):TNAME.VAL")
+#! Record("$(DEV):$(LOCA):$(UNIT):TNAME",24891,24728,0,1,"$(DEV):$(LOCA):$(UNIT):TNAME")
+#! Field("$(DEV):$(LOCA):$(UNIT):TNAME.VAL",16777215,0,"$(DEV):$(LOCA):$(UNIT):TNAME.VAL")
 #! Record("$(DEV):$(LOCA):$(UNIT):POINT",24841,24637,0,1,"$(DEV):$(LOCA):$(UNIT):POINT")
 #! Field("$(DEV):$(LOCA):$(UNIT):POINT.VAL",16777215,0,"$(DEV):$(LOCA):$(UNIT):POINT.VAL")

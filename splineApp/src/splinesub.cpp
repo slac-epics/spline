@@ -25,40 +25,6 @@ typedef std::vector< std::pair<std::string,spline::spline> > SplineContainer;
   SplineContainer scon;
 
 
-/*
-*
-* makePath(struct subRecord *psub)
-* -creates absolute path to data file
-* $IOC_DATA/$IOC/measurements/filename [default]
-* ./filename                           [backup]
-*
-*/
-static std::string  makePath(const char* filename_c_str){
-    const char* top_c_str = getenv("TOP");
-    if (top_c_str){
-       std::string top(top_c_str);
-       std::string filename(filename_c_str);
-       std::string path = top + "/measurements/" + filename;
-       return path;
-    } else {
-       return std::string(filename_c_str);
-    }
-}
-
-
-/*
-* 
-* initSpline(std::string trans_name, std::string filepat){
-*   - constructs spline object from datafiles 
-*     places it into container where spline can be
-*     matched with a specific transformation name
-
-static void initSpline(){
-    std::string tname = std::string(args[0].sval);
-    std::string filepath = std::string(args[1].sval);
-    printf("initSpline :: Params: %s %s \n",tname,filepath);
-    scon.push_back( std::make_pair( tname, spline(filepath) ) );
-}*/
 
 /*
 * spline getSplineFromContainer(aSubRecord* psub){
@@ -69,13 +35,13 @@ static spline getSplineFromContainer(std::string psub){
    spline s;
    SplineContainer::iterator it = scon.begin();
     for (; it !=scon.end() ; ++it ){
-       if ((*it).first == psub){
+       if (psub.compare((*it).first) == 0){
+          printf("Returning %s\n",(*it).first.c_str());
           return (*it).second; 
        }
     }
     return s;
 }
-
 
 
 
@@ -89,9 +55,7 @@ static spline getSplineFromContainer(std::string psub){
 */
 static long splineIt(aSubRecord *psub){
   spline s;
-  //Grab subroutine that is paired with the record
-  //Get spline from field name
-  s = getSplineFromContainer("placeholder");
+
   
   //Cast EPICS fields to correct types
   double* inpa; char* inpb; int* inpc;
@@ -100,14 +64,18 @@ static long splineIt(aSubRecord *psub){
   inpb = (char*) psub->b;
   inpc = (int* ) psub->c;
 
+  /*Grab subroutine that is paired with the record
+  based on tname from field b */
+  s = getSplineFromContainer(std::string(inpb));
+
+
   
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("Initializing spline\n");
-          //Rework now that st.cmd handles init
-          //initSplines(psub);
+          printf("No such transformation %s\n",inpb);
+          return -1;
     }catch (int e) {
       if( e < 0 ) {
         return e;
@@ -130,11 +98,14 @@ static long splineIt(aSubRecord *psub){
   return 0;    
 }
 
-epicsRegisterFunction(splineIt);
 
 
 
-
+/*
+This block sets up a interface for the ioc shell. It allows the user to intializes
+their splines in the st.cmd. Each spline has a filepath and a tranformation name(tname)
+When the subroutine is processed it will use the tname in field b to find which spline belongs to it
+*/
 static const iocshArg spline_init_arg0 = { "transform_name", iocshArgString};
 static const iocshArg spline_init_arg1 = { "filename", iocshArgString};
 
@@ -142,8 +113,8 @@ static const iocshArg *const spline_init_args[] = {&spline_init_arg0, &spline_in
 static const iocshFuncDef spline_init_def = {"splineInit", 2, spline_init_args};
 static void spline_init(const iocshArgBuf *args ){
    printf("Hello there!\n");
-   std::string tname   (  args[0].sval,1024);
-   std::string filepath ( args[1].sval,1024);
+   std::string tname   (  args[0].sval);
+   std::string filepath ( args[1].sval);
    printf("Filepath is  %s  \nTransformation name is %s \n",filepath.c_str(),tname.c_str());
 
    scon.push_back( std::make_pair( tname, spline(filepath) ) );
@@ -154,4 +125,6 @@ static void drvSplineRegistrar(){
     iocshRegister(&spline_init_def, spline_init);
 }
 
+
+epicsRegisterFunction(splineIt);
 epicsExportRegistrar(drvSplineRegistrar);
