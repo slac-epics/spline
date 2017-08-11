@@ -85,13 +85,11 @@ std::vector<std::string> spline::split(std::string str, char delimiter){
 */
 std::pair<double,double> spline::parse(std::string line, char delim){ 
       /* split on comma first element goes to x vector second y vector*/
-     printf("spline::parse line = %s\n",line.c_str());
      std::pair<double, double> result;
      std::vector<std::string> out = split(line,delim);
      //file format error
      if (out.size() != 2) {printf("spline::parse Not a pair of values\n"); throw -1 ;}
      result = std::make_pair( atof(out[0].c_str() ),  atof(out[1].c_str() ) );
-     //if (result.first == 0 || result.second == 0 ) {printf("spline::parse One of the values was zero\n"); throw -1 ;}
      return result;
 }
 
@@ -111,15 +109,19 @@ void spline::parse_file(){
 
     std::ifstream f( filename );
     char b;
+    int  c=0;
     if( f.is_open() ){
-      f.read(&b,10);
-      if ( b!= 0xEF && b!=0xFF){
-         f.clear();
-	       f.seekg(0);
-	       printf("Is not a utf file first byte %c\n",b);
-      }else{
-         printf("Is a utf file, first byte %c\n",b);
+      /*This skips BOM utf headers and non-acsii
+      junction before data*/
+      f.read(&b,1);
+      while ( (b & ~0x7F) != 0 ){
+            //ignore they arent ascii
+            f.read(&b,1);
+            c++;//hah
       }
+      f.clear();
+      f.seekg(c);
+
       while( std::getline(f,line) ){
          p = parse(line,delim);
          x_a[i] = p.first;
@@ -141,7 +143,7 @@ void spline::parse_file(){
 */
 spline::spline(std::string filename){
     //Indicate class has been constructed
-    printf("spline::spline Filname is %s",filename.c_str());
+    printf("spline::spline Filname is %s\n",filename.c_str());
     initialized = true;
     this->filename = filename.c_str();
     

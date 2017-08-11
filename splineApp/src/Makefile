@@ -31,7 +31,6 @@ LIB_INSTALLS += $(ALGLIB_LIB)/libalg.a
 
 # spline.dbd will be created and installed
 DBD += spline.dbd
-DBD_INSTALLS += subs.dbd
 # spline.dbd will be made up from these files:
 spline_DBD += subs.dbd
 spline_DBD += base.dbd

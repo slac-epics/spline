@@ -16,23 +16,56 @@
 #
 #==============================================================
 #
-Application supports cubic splining of data. It uses alglib libraries 
+
+##Overview
+Module supports cubic splining of data. It uses alglib libraries 
 embedded in EPICS aSubRoutine to accomplish the spline. 
 
 spline.template contains epics database template to implement a spline and 
 inverse of spline
 There are 4 main records.
       TRANS : holds subroutines and does calculation
-      FNAME : holds name of file that contains real data points 
+      TNAME : holds name of transformation 
       IN    : input value
       OUT   : output value
 
 To create an inverse INPC of the TRANS record must be set to 1.
 
 Multiple transformation can be created. 
-Database files must be formatted as a csv non-utf8. It is expected
-all data is non-zero. Subroutine will look for data file inside $IOC_DATA/$IOC/measurements/ or in the current directory.
+Data format supported is .csv files
+
+##Application Use
+To add cubic spline support to your application modify the following:
+   -configure/RELEASE
+        SPLINE=<path to module version>
+
+   -<yourApp>/src/Makefile add the following lines.
+        <yourApp>_DBD += spline.dbd
+        <yourApp>_LIBS += spline
+   
+   -<yourApp>/Db/Makefile add the following lines.
+        DB_INSTALLS += $(SPLINE)/db/spline.template
+
+These modifications will include all the nessecary support
+
+Use spline.template to construct your database
+    The $TNAME macro indentifies which spline the record uses
+    
+    The spline is built from a csv file of measured data points
+    in the st.cmd you specify the file and assign it a transformation
+    name. 
+
+    
+    splineInit(<transformation name >,<filepath>)
+
+     There can be multiple splines if nessecary.
+
+##Errors
+If alglib error is encoutered it will stop the IOC and output alglib::ap_error 
+this means the data file is either corrupt or the measurement points cannot be 
+splined.
 
 
 
+     
 # End of file
