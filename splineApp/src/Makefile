@@ -34,9 +34,6 @@ DBD += spline.dbd
 # spline.dbd will be made up from these files:
 spline_DBD += subs.dbd
 spline_DBD += base.dbd
-spline_DBD += devIocStats.dbd
-spline_DBD += autosaveSupport.dbd
-spline_DBD += caPutLog.dbd
 spline_DBD += $(CEXP_DBDS)
 
 #
@@ -60,20 +57,9 @@ spline_SRCS_vxWorks += -nil-
 # Add locally compiled object code
 # For example, subroutines
 # ========================================================================
-spline_SRCS += splinesub.cpp
+spline_SRCS += spline_sub.cpp
 spline_SRCS += spline_interp.cpp
 #spline_SRCS += spline_shell.cpp
-# =====================================================
-# Link in the code from other libraries
-# =====================================================
-# Needed to link in iocAdmin support
-spline_LIBS += devIocStats
-
-# Needed to link in autosave support
-spline_LIBS += autosave
-
-# Needed to link caPutLog support
-spline_LIBS += caPutLog
 
 # Need to link algorighm library
 spline_LIBS += alg

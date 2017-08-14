@@ -150,8 +150,7 @@ spline::spline(std::string filename){
     //Extract measured data from data file
     set_array_length();
     parse_file();   
-    printf("About to build spline\n");
-    printf("List of arguements for spline...\n");
+    printf("Points for spline...\n");
     printf("x_a = ..\n");
     for (int i = 0 ; i < N ; ++i){
       printf("%f, ",x_a[i] );
@@ -165,6 +164,5 @@ spline::spline(std::string filename){
     //Build the spline for forward and inverse transformations
     alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
     alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
-    printf("Splines built\n");
 }
 
