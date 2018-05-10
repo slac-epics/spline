@@ -32,8 +32,8 @@ LIB_INSTALLS += $(ALGLIB_LIB)/libalg.a
 # spline.dbd will be created and installed
 DBD += spline.dbd
 # spline.dbd will be made up from these files:
-spline_DBD += subs.dbd
 spline_DBD += base.dbd
+spline_DBD += subs.dbd
 spline_DBD += $(CEXP_DBDS)
 
 #
@@ -65,7 +65,7 @@ spline_SRCS += spline_interp.cpp
 spline_LIBS += alg
 
 # Needed to link cexpsh() support
-#spline_LIBS += $(CEXP_LIBS)
+spline_LIBS += $(CEXP_LIBS)
 
 spline_LIBS += $(EPICS_BASE_IOC_LIBS)
 

@@ -1,0 +1,10 @@
+bin/
+CVS/
+O.*/
+RELEASE_SITE
+db/
+dbd/
+lib/
+iocBoot/*/envPaths
+*~
+*.swp
