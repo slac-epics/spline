@@ -63,10 +63,9 @@ CEXP_MODULE_VERSION=cexpsh-R1-0-0
 
 
 RTEMSUTILS=$(EPICS_MODULES)/rtemsutils/$(RTEMSUTILS_MODULE_VERSION)
-
 CEXP=$(EPICS_MODULES)/cexpsh/$(CEXP_MODULE_VERSION)
-
-ALGLIB=/u/cd/jpdef/workspace/EPICS/Splining/alglib/3.10.1
+#ALGLIB=/u/cd/jpdef/workspace/EPICS/Splining/alglib/3.10.1
+ALGLIB=$(PACKAGE_SITE_TOP)/alglib/3.10.1
 
 
 # EPICS_BASE usually appears last so other apps can override stuff:

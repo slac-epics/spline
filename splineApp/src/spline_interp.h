@@ -36,6 +36,12 @@ class spline{
     double calc(double point);
     double calc_inv(double point);
     void dospline(std::string trans_name, std::string filepath);
+    /* get the limits on x and y */
+    double get_max_X();
+    double get_min_X();
+    double get_max_Y();
+    double get_min_Y();
+
   private:
 
     void parse_file();

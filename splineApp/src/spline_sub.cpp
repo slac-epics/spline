@@ -100,6 +100,59 @@ static long splineIt(aSubRecord *psub){
 }
 
 
+/*
+*
+* getLimits(struct subRecord *psub)
+* - get limits on input data
+*
+*/
+static long getLimits(aSubRecord *psub){
+  spline s;
+
+  
+  //Cast EPICS fields to correct types
+  double outa[1]; double outb[1]; double outc[1]; double outd[1];
+  char* inpa; 
+  inpa = (char*) psub->a;
+  
+  s = getSplineFromContainer(std::string(inpa));
+  /*If this is first call then initialize
+  the spline*/
+  if ( ! s.is_initialized() ) {
+    try{
+          printf("No such transformation %s\n",inpa);
+          return -1;
+    }catch (int e) {
+      if( e < 0 ) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        return e;
+      }
+    } catch (alglib::ap_error a) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      return -1;
+    }
+
+  } else {
+
+    /*Calculate output, then set value a to the output*/
+    /* max gap */
+    outa[0] = s.get_max_Y(); 
+    /* min gap */
+    outb[0] = s.get_min_Y(); 
+    /* max K */
+    outc[0] = s.get_max_X(); 
+    /* min K */
+    outd[0] = s.get_min_X(); 
+    /* Return everything */
+    *(double *)(psub->vala) = outa[0];
+    *(double *)(psub->valb) = outb[0];
+    *(double *)(psub->valc) = outc[0];
+    *(double *)(psub->vald) = outd[0];
+    printf("Max gap: %f, min gap: %f, max K: %f, min K: %f\n", outa[0], outb[0], outc[0], outd[0]); 
+  }
+  
+  return 0;    
+}
 
 
 /*
@@ -127,4 +180,5 @@ static void drvSplineRegistrar(){
 
 
 epicsRegisterFunction(splineIt);
+epicsRegisterFunction(getLimits);
 epicsExportRegistrar(drvSplineRegistrar);

@@ -166,3 +166,20 @@ spline::spline(std::string filename){
     alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
 }
 
+/* get the limits on x and y from the data file */
+double spline::get_max_X() {
+    return x_a[0];
+}
+
+double spline::get_min_X() {
+    return x_a[N-1];
+}
+
+double spline::get_max_Y() {
+    return y_a[N-1];
+}
+
+double spline::get_min_Y() {
+    return y_a[0];
+}
+
