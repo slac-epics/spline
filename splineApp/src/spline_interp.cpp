@@ -49,7 +49,10 @@ void spline::set_array_length(){
   std::ifstream f( filename );
   if (f.is_open()){
       while (getline(f,line)){
-        i++;
+         // count only the lines with actual data
+         if((line.at(0) != '#') && !(isalpha(line.at(0)))) {
+           i++;
+	 }
       }
   }
   f.close();
@@ -123,10 +126,12 @@ void spline::parse_file(){
       f.seekg(c);
 
       while( std::getline(f,line) ){
-         p = parse(line,delim);
-         x_a[i] = p.first;
-         y_a[i] = p.second;
-         i++;
+         if((line.at(0) != '#') && !(isalpha(line.at(0)))) {
+           p = parse(line,delim);
+           x_a[i] = p.second;
+           y_a[i] = p.first;
+           i++;
+         }
       }
     }
     f.close();
