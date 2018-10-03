@@ -24,7 +24,7 @@
 #INSTALL_LOCATION_APP=<fullpathname>
 
 # EPICS Templates
-TEMPLATE_TOP=/afs/slac/g/lcls/epics/R3-14-12-4_1-0/modules/icdTemplates/icdTemplates-R1-2-1
+#TEMPLATE_TOP=/afs/slac/g/lcls/epics/R3-14-12-4_1-0/modules/icdTemplates/icdTemplates-R1-2-1
 
 # =============================================================
 # All needed variables come in via the following include:
@@ -36,33 +36,33 @@ include $(TOP)/RELEASE_SITE
 # Define location of the modules tree
 # =============================================================
 
-EPICS_MODULES=$(MODULES_SITE_TOP)
+#EPICS_MODULES=$(MODULES_SITE_TOP)
 
 # ==============================================================
 # Define the cvs module version of EPICS BASE that you will use
 # =============================================================
 
-BASE_MODULE_VERSION=$(EPICS_BASE_VER)
+#BASE_MODULE_VERSION=$(EPICS_BASE_VER)
 
 # =============================================================
 # Define the version of modules needed by
 # IOC apps or other Support apps
 # =============================================================
 
-RTEMSUTILS_MODULE_VERSION=rtemsutils-R1-0-0-lcls5
+#RTEMSUTILS_MODULE_VERSION=R1.1.0
 
 # Let's add in support for the cexpsh()
 # This can be called from the EPICS shell
 # Please look at the README file in 
 # CEXP module
-CEXP_MODULE_VERSION=cexpsh-R1-0-0
+CEXP_MODULE_VERSION=R1.0.1
 
 # ============================================================
 #  Module Location
 # ============================================================
 
 
-RTEMSUTILS=$(EPICS_MODULES)/rtemsutils/$(RTEMSUTILS_MODULE_VERSION)
+#RTEMSUTILS=$(EPICS_MODULES)/rtemsutils/$(RTEMSUTILS_MODULE_VERSION)
 CEXP=$(EPICS_MODULES)/cexpsh/$(CEXP_MODULE_VERSION)
 #ALGLIB=/u/cd/jpdef/workspace/EPICS/Splining/alglib/3.10.1
 ALGLIB=$(PACKAGE_SITE_TOP)/alglib/3.10.1
