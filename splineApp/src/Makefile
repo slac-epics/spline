@@ -23,8 +23,8 @@ LIBRARY += spline
 # PATH TO THE EXTERNAL LIBRARIES
 #===================================
 USR_INCLUDES += $(ALGLIB_INCLUDE)
-alg_DIR=$(ALGLIB_LIB)
-LIB_INSTALLS += $(ALGLIB_LIB)/libalg.a
+alglib_DIR=$(ALGLIB_LIB)
+LIB_INSTALLS += $(ALGLIB_LIB)/libalglib.*
 
 # LINK EXTERNAL LIBRARIES STATICALLY
 #====================================
@@ -32,11 +32,7 @@ LIB_INSTALLS += $(ALGLIB_LIB)/libalg.a
 # spline.dbd will be created and installed
 DBD += spline.dbd
 # spline.dbd will be made up from these files:
-#spline_DBD += base.dbd
 spline_DBD += subs.dbd
-spline_DBD += $(CEXP_DBDS)
-
-#
 
 # ================================================================================
 # The system command will be mainly used by linux hosted IOCs
@@ -59,16 +55,11 @@ spline_SRCS_vxWorks += -nil-
 # ========================================================================
 spline_SRCS += spline_sub.cpp
 spline_SRCS += spline_interp.cpp
-#spline_SRCS += spline_shell.cpp
 
 # Need to link algorighm library
-spline_LIBS += alg
-
-# Needed to link cexpsh() support
-spline_LIBS += $(CEXP_LIBS)
+spline_LIBS += alglib
 
 spline_LIBS += $(EPICS_BASE_IOC_LIBS)
-
 #===========================
 
 

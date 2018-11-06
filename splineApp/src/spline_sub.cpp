@@ -19,10 +19,10 @@
 /*Local libs*/
 #include "spline_interp.h"
 
-typedef std::vector< std::pair<std::string,spline::spline> > SplineContainer;
+typedef std::vector< std::pair<std::string, spline> > SplineContainer;
 
 /*Main data structure*/
-  SplineContainer scon;
+SplineContainer scon;
 
 
 

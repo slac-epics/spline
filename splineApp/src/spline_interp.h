@@ -11,7 +11,6 @@
 #include <string.h>
 #include <assert.h>
 
-
 //Object that holds spline
 class spline{
    
@@ -50,8 +49,6 @@ class spline{
     std::vector<std::string> split(std::string str, char delimiter);
 
 };
-
-
 
 
 #endif
