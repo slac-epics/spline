@@ -10,5 +10,8 @@
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
 
+R2.0.0: First release with the new Git Workflow.
+	- Alglib bumped to 3.14.0
+
 spline-R1-0-1: First official release to be consumed.
                      EPICS BASE: R3-14-12-3_1-0
