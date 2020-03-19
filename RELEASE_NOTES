@@ -9,6 +9,8 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+R2.0.1: Adding support for R3-14-12
+	- Add linuxRT-x86 and fix linux-x86 location to alglib.
 
 R2.0.0: First release with the new Git Workflow.
 	- Alglib bumped to 3.14.0
