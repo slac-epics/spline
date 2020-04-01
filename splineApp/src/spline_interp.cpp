@@ -173,18 +173,45 @@ spline::spline(std::string filename){
 
 /* get the limits on x and y from the data file */
 double spline::get_max_X() {
-    return x_a[0];
+    double max = x_a[0];
+    for (int i = 1; i < N; i++) {
+        if(x_a[i] > max) {
+            max = x_a[i];
+        }
+    }    
+    return max;
 }
 
 double spline::get_min_X() {
-    return x_a[N-1];
+    double min = x_a[0];
+    for (int i = 1; i < N; i++) {
+        if(x_a[i] < min) {
+            min = x_a[i];
+        }
+    }    
+    return min;
 }
 
 double spline::get_max_Y() {
-    return y_a[N-1];
+    double max = y_a[0];
+    for (int i = 1; i < N; i++) {
+        if(y_a[i] > max) {
+            max = y_a[i];
+        }
+    }    
+    return max;
 }
 
 double spline::get_min_Y() {
-    return y_a[0];
+    double min = y_a[0];
+    for (int i = 1; i < N; i++) {
+        if(y_a[i] < min) {
+            min = y_a[i];
+        }
+    }    
+    return min;
 }
 
+int spline::get_num_points() {
+    return N;
+}

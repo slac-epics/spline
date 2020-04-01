@@ -19,12 +19,15 @@
 /*Local libs*/
 #include "spline_interp.h"
 
+/* Define SUCCESS macro*/
+#ifndef SUCCESS
+#define SUCCESS 1
+#endif
+
 typedef std::vector< std::pair<std::string, spline> > SplineContainer;
 
 /*Main data structure*/
 SplineContainer scon;
-
-
 
 /*
 * spline getSplineFromContainer(aSubRecord* psub){
@@ -42,6 +45,15 @@ static spline getSplineFromContainer(std::string psub){
     return s;
 }
 
+/* long splineInit(aSubRecord *psub) 
+ * Generic spline initialization function 
+ * To be used in the INAM field
+*/
+static long splineInit(aSubRecord *psub) {
+   /* Always returns SUCCESS*/
+   long status = SUCCESS;
+   return status;
+}
 
 
 /*
@@ -154,6 +166,47 @@ static long getLimits(aSubRecord *psub){
   return 0;    
 }
 
+/*
+*
+* getNumPoints(struct subRecord *psub)
+* - get number of data points in input data
+*
+*/
+static long getNumPoints(aSubRecord *psub){
+  spline s;
+
+  
+  //Cast EPICS fields to correct types
+  int outa[1]; 
+  char* inpa; 
+  inpa = (char*) psub->a;
+  
+  s = getSplineFromContainer(std::string(inpa));
+  /*If this is first call then initialize
+  the spline*/
+  if ( ! s.is_initialized() ) {
+    try{
+          printf("No such transformation %s\n",inpa);
+          return -1;
+    }catch (int e) {
+      if( e < 0 ) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        return e;
+      }
+    } catch (alglib::ap_error a) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      return -1;
+    }
+
+  } else {
+    /*Fetch number of data points*/
+    outa[0] = s.get_num_points(); 
+    *(int *)(psub->vala) = outa[0];
+    printf("Num points: %d\n", outa[0]); 
+  }
+  
+  return 0;    
+}
 
 /*
 This block sets up a interface for the ioc shell. It allows the user to intializes
@@ -181,4 +234,5 @@ static void drvSplineRegistrar(){
 
 epicsRegisterFunction(splineIt);
 epicsRegisterFunction(getLimits);
+epicsRegisterFunction(getNumPoints);
 epicsExportRegistrar(drvSplineRegistrar);

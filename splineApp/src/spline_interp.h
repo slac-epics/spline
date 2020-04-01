@@ -40,6 +40,7 @@ class spline{
     double get_min_X();
     double get_max_Y();
     double get_min_Y();
+    int get_num_points();
 
   private:
 

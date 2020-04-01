@@ -1,3 +1,5 @@
+function(splineInit)
 function(splineIt)
 function(getLimits)
+function(getNumPoints)
 registrar(drvSplineRegistrar)

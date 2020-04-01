@@ -20,6 +20,7 @@
 /*Local libs*/
 #include "spline_interp.h"
 
+
 typedef std::vector< std::pair<std::string, spline> > SplineContainer;
 
 /*Main data structure*/
@@ -29,6 +30,8 @@ static std::string  makePath(const char* filename_c_str);
 static void initSpline(std::string trans_name, std::string filepath);
 static spline getSplineFromContainer(std::string psub);
 static long splineIt(aSubRecord *psub);
+static long splineInit(aSubRecord *psub);
 static long getLimits(aSubRecord *psub);
+static long getNumPoints(aSubRecord *psub);
 
 #endif
