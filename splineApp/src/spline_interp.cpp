@@ -109,6 +109,7 @@ void spline::parse_file(){
     char delim = ','; int i = 0;
     std::string line;
     std::pair<double, double> p;
+    std::string date ("# Date");
 
     std::ifstream f( filename );
     char b;
@@ -131,6 +132,13 @@ void spline::parse_file(){
            x_a[i] = p.second;
            y_a[i] = p.first;
            i++;
+         }
+         else{
+           /* Get the date out of the file */
+           if(line.compare(0,6,date) == 0) {
+              std::size_t len = line.copy(fileDate,DATEFILE_CHARS,8);
+              fileDate[len] = '\0';
+           }
          }
       }
     }
@@ -230,3 +238,8 @@ int spline::get_Y_array(double *& ypts, int* npts){
     return 0;
 }
 
+/* Return the date on the file */
+int spline::get_date(char *&date) {
+   date = fileDate;
+   return 0;
+}

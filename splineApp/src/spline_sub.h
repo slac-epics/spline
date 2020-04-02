@@ -34,5 +34,6 @@ static long splInit(aSubRecord *psub);
 static long getLimits(aSubRecord *psub);
 static long getNumPoints(aSubRecord *psub);
 static long getPoints(aSubRecord *psub);
+static long getDate(aSubRecord *psub);
 
 #endif

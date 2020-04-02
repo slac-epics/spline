@@ -305,6 +305,55 @@ static long getPoints(aSubRecord *psub){
    return 0;    
 }
 
+/*
+*
+* getDate(struct subRecord *psub)
+* - get date from file 
+*
+*/
+static long getDate(aSubRecord *psub){
+  spline s;
+  // Pointers to hold the returned values
+  char* date = NULL; 
+
+  //Cast EPICS fields to correct types
+  char* inpa; 
+  inpa = (char*) psub->a;
+  
+  s = getSplineFromContainer(std::string(inpa));
+  /*If this is first call then initialize
+  the spline*/
+  if ( ! s.is_initialized() ) {
+    try{
+          printf("No such transformation %s\n",inpa);
+          return -1;
+    }catch (int e) {
+      if( e < 0 ) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        return e;
+      }
+    } catch (alglib::ap_error a) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      return -1;
+    }
+
+  } else {
+     
+     /* Fetch the data points */
+     s.get_date(date);
+     /* Assign data points to the output*/
+    for(int i = 0; i < DATEFILE_CHARS; i++) {
+      if(date[i]  == '\0' || date[i] == '\r') {
+         break;
+      }
+      else {
+        ((char*)psub->vala)[i]  = date[i];
+      }
+    }
+   }
+  
+   return 0;    
+}
 
 /*
 This block sets up a interface for the ioc shell. It allows the user to intializes
@@ -335,4 +384,5 @@ epicsRegisterFunction(splInit);
 epicsRegisterFunction(getLimits);
 epicsRegisterFunction(getNumPoints);
 epicsRegisterFunction(getPoints);
+epicsRegisterFunction(getDate);
 epicsExportRegistrar(drvSplineRegistrar);

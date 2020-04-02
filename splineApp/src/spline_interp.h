@@ -11,6 +11,8 @@
 #include <string.h>
 #include <assert.h>
 
+# define DATEFILE_CHARS 40
+
 //Object that holds spline
 class spline{
    
@@ -18,6 +20,7 @@ class spline{
   alglib::real_1d_array y_a;
   alglib::spline1dinterpolant interp;
   alglib::spline1dinterpolant interp_inv;
+  char fileDate[DATEFILE_CHARS];
   /* indicates if object has been contructed or not*/
   bool initialized ;
   const char* filename;
@@ -43,6 +46,7 @@ class spline{
     int get_num_points();
     int get_X_array(double *&xpts, int* npts);
     int get_Y_array(double *&ypts, int* npts);
+    int get_date(char *&date);
 
   private:
 
