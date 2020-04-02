@@ -41,6 +41,8 @@ class spline{
     double get_max_Y();
     double get_min_Y();
     int get_num_points();
+    int get_X_array(double *&xpts, int* npts);
+    int get_Y_array(double *&ypts, int* npts);
 
   private:
 

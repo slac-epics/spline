@@ -15,6 +15,9 @@
 #include <ap.h>
 #include "iocsh.h"
 #include <epicsExport.h>
+#include <epicsMutex.h>
+#include <cantProceed.h>        /* for callocMustSucceed()             */
+#include <dbFldTypes.h>         /* for DBF_DOUBLE                      */
 
 /*Local libs*/
 #include "spline_interp.h"
@@ -25,6 +28,12 @@
 #endif
 
 typedef std::vector< std::pair<std::string, spline> > SplineContainer;
+
+typedef struct devicePvt_s
+{
+   epicsUInt32   npts;
+   epicsMutexId  mlock;
+}devicePvt_ts;
 
 /*Main data structure*/
 SplineContainer scon;
@@ -49,12 +58,18 @@ static spline getSplineFromContainer(std::string psub){
  * Generic spline initialization function 
  * To be used in the INAM field
 */
-static long splineInit(aSubRecord *psub) {
-   /* Always returns SUCCESS*/
-   long status = SUCCESS;
-   return status;
+static long splInit(aSubRecord *psub) {
+  long status = SUCCESS;
+  devicePvt_ts *dpvt_ps = NULL;
+  /* Check that this pv has not already been initialized */
+  if ( psub->dpvt ) return (-1);
+  
+  /* Allocate the private device information */
+  dpvt_ps = (devicePvt_ts*)callocMustSucceed(1,sizeof(devicePvt_ts),"calloc failed for mgntIVBInit" );
+  dpvt_ps->mlock = epicsMutexMustCreate();
+  psub->dpvt = dpvt_ps;
+  return status;
 }
-
 
 /*
 *
@@ -177,10 +192,10 @@ static long getNumPoints(aSubRecord *psub){
 
   
   //Cast EPICS fields to correct types
-  int outa[1]; 
+  double outa[1]; 
   char* inpa; 
   inpa = (char*) psub->a;
-  
+   
   s = getSplineFromContainer(std::string(inpa));
   /*If this is first call then initialize
   the spline*/
@@ -201,12 +216,95 @@ static long getNumPoints(aSubRecord *psub){
   } else {
     /*Fetch number of data points*/
     outa[0] = s.get_num_points(); 
-    *(int *)(psub->vala) = outa[0];
-    printf("Num points: %d\n", outa[0]); 
+    *(double *)(psub->vala) = outa[0];
+    printf("Num points: %.0f\n", outa[0]); 
   }
   
   return 0;    
 }
+
+/*
+*
+* getPoints(struct subRecord *psub)
+* - get data points from input file (points stored in memory used for interpolation)
+*
+*/
+static long getPoints(aSubRecord *psub){
+  spline s;
+  // Pointers to hold the returned values
+  double* xpts = NULL; 
+  double* ypts = NULL; 
+  int npts = 0;
+  int xnpts = 0;
+  int ynpts = 0;
+  devicePvt_ts  *dpvt_ps = NULL;
+  size_t         nbytes = sizeof(double) * psub->nova;
+
+  //Cast EPICS fields to correct types
+  char* inpa; 
+  inpa = (char*) psub->a;
+  dpvt_ps = (devicePvt_ts *)psub->dpvt;
+   s = getSplineFromContainer(std::string(inpa));
+  /*If this is first call then initialize
+  the spline*/
+  if ( ! s.is_initialized() ) {
+    try{
+          printf("No such transformation %s\n",inpa);
+          return -1;
+    }catch (int e) {
+      if( e < 0 ) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        return e;
+      }
+    } catch (alglib::ap_error a) {
+          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      return -1;
+    }
+
+  } else {
+     /* clear waveform */
+     epicsMutexMustLock(dpvt_ps->mlock); 
+     memset(psub->vala,0,nbytes);
+     epicsMutexUnlock(dpvt_ps->mlock);
+     psub->neva=0;
+     
+     epicsMutexMustLock(dpvt_ps->mlock); 
+     memset(psub->valb,0,nbytes);
+     epicsMutexUnlock(dpvt_ps->mlock);
+     psub->nevb=0;
+     
+     /* Fetch the data points */
+     s.get_X_array(xpts, &xnpts);
+     s.get_Y_array(ypts, &ynpts);
+     /* Make sure we have retrieved the same number of points from the two arrays*/
+    if(xnpts == ynpts) {
+        npts = xnpts;
+     }
+     else {
+        printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
+        return 1;
+     }
+     /* Assign data points to the output*/
+     for (int i = 0; i < npts; i++) {
+         epicsMutexMustLock(dpvt_ps->mlock)
+         ((double*)psub->vala)[i] = xpts[i];
+         epicsMutexUnlock(dpvt_ps->mlock);
+     }
+     psub->neva = npts;
+     
+     /* Assign data points to the output*/
+     for (int i = 0; i < npts; i++) {
+         epicsMutexMustLock(dpvt_ps->mlock)
+         ((double*)psub->valb)[i] = ypts[i];
+         epicsMutexUnlock(dpvt_ps->mlock);
+     }
+     psub->nevb = npts;
+     
+   }
+  
+   return 0;    
+}
+
 
 /*
 This block sets up a interface for the ioc shell. It allows the user to intializes
@@ -233,6 +331,8 @@ static void drvSplineRegistrar(){
 
 
 epicsRegisterFunction(splineIt);
+epicsRegisterFunction(splInit);
 epicsRegisterFunction(getLimits);
 epicsRegisterFunction(getNumPoints);
+epicsRegisterFunction(getPoints);
 epicsExportRegistrar(drvSplineRegistrar);

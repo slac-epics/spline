@@ -215,3 +215,18 @@ double spline::get_min_Y() {
 int spline::get_num_points() {
     return N;
 }
+
+/* return the X array*/
+int spline::get_X_array(double *& xpts, int* npts){
+    xpts = x_a.getcontent();
+    *npts = N;
+    return 0;
+}
+
+/* return the Y array*/
+int spline::get_Y_array(double *& ypts, int* npts){
+    ypts = y_a.getcontent();
+    *npts = N;
+    return 0;
+}
+
