@@ -1,7 +1,11 @@
+## splineTesting.bstitution: substitution file for testing spline motion 
+#
+
+#
+# Perform k - gap transformation
+#
 file spline.template
-
 {
-  pattern{ DEV, LOCA, UNIT, FILENAME }
-         { UND, TEST, MC, current}
-
+pattern{ P    ,  M        , DIR, TNAME   , Y   ,  X, }
+       {"$(U):", "DK2GSpl" , 0  , "k2gap", GAP ,  K, }
 }
