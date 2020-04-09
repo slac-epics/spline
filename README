@@ -11,8 +11,8 @@
 #  Rev:  dd-mmm-yyyy, Reviewer's Name (USERNAME)
 #--------------------------------------------------------------
 #  Mod:
-#        dd-mmm-yyyy, Reviewer's Name (USERNAME)
-#          coment
+#        09-Apr-2020, Alex Montironi (ALEXMON)
+#          eduted usage
 #
 #==============================================================
 #
@@ -23,16 +23,12 @@ embedded in EPICS aSubRoutine to accomplish the spline.
 
 spline.template contains epics database template to implement a spline and 
 inverse of spline
-There are 4 main records.
-      TRANS : holds subroutines and does calculation
-      TNAME : holds name of transformation 
-      IN    : input value
-      OUT   : output value
 
+A direct transofrmation transforms X into Y and the $(DIR) macro must be set to 0
+An inverse transformation transforms Y to X and the $(DIR) macro must be set to 1
 To create an inverse INPC of the TRANS record must be set to 1.
 
 Multiple transformation can be created. 
-Data format supported is .csv files
 
 ##Application Use
 To add cubic spline support to your application modify the following:
