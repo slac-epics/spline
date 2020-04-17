@@ -9,6 +9,12 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+R2.0.3: - Renaming functions called by aSub record to have names 
+          unique to the spline module.
+        - Added splineGetInpParams to expose all parameters from 
+          input datafile
+        - Updated database files that demonstrate module usage
+
 R2.0.2: Adding features:
 	- Fixed bug in extraction of max and min datapoints
         - Added getPoints function to expose datapoints to EPICS
