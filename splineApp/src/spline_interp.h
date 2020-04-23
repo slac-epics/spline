@@ -10,6 +10,7 @@
 #include <interpolation.h>
 #include <string.h>
 #include <assert.h>
+#include <cstdlib>
 
 # define DATEFILE_CHARS 40
 

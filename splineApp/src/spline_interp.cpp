@@ -1,6 +1,5 @@
 #include "spline_interp.h"
 
-
 /*
 *
 * spline::calc(double point)
@@ -55,12 +54,20 @@ void spline::set_array_length(){
 	 }
       }
   }
+  else {
+      printf("File could not be opened. Exiting...\n");
+      std::exit(EXIT_FAILURE);
+  }
+  // Exit if no data was retrieved from the file
+  if(i == 1) {
+      printf("No data retrieved from file. Exiting...\n");
+      std::exit(EXIT_FAILURE);
+  }
   f.close();
   x_a.setlength(i);
   y_a.setlength(i);
   N = i;
 }
-
 
 /*
 *
@@ -142,6 +149,10 @@ void spline::parse_file(){
          }
       }
     }
+    else {
+        printf("File could not be opened. Exiting...\n");
+        std::exit(EXIT_FAILURE);
+    }
     f.close();
 }
 
@@ -159,7 +170,6 @@ spline::spline(std::string filename){
     printf("spline::spline Filname is %s\n",filename.c_str());
     initialized = true;
     this->filename = filename.c_str();
-    
     //Extract measured data from data file
     set_array_length();
     parse_file();   
