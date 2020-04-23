@@ -433,16 +433,16 @@ static long splineGetInpPrms(aSubRecord *psub){
 
 
 /*
-This block sets up a interface for the ioc shell. It allows the user to intializes
+This block sets up a interface for the ioc shell. It allows the user to intialize
 their splines in the st.cmd. Each spline has a filepath and a tranformation name(tname)
 When the subroutine is processed it will use the tname in field b to find which spline belongs to it
 */
-static const iocshArg spline_init_arg0 = { "transform_name", iocshArgString};
-static const iocshArg spline_init_arg1 = { "filename", iocshArgString};
+static const iocshArg spline_bld_arg0 = { "transform_name", iocshArgString};
+static const iocshArg spline_bld_arg1 = { "filename", iocshArgString};
 
-static const iocshArg *const spline_init_args[] = {&spline_init_arg0, &spline_init_arg1};
-static const iocshFuncDef spline_init_def = {"splineInit", 2, spline_init_args};
-static void spline_init(const iocshArgBuf *args ){
+static const iocshArg *const spline_bld_args[] = {&spline_bld_arg0, &spline_bld_arg1};
+static const iocshFuncDef spline_bld_def = {"splineBuild", 2, spline_bld_args};
+static void spline_bld(const iocshArgBuf *args ){
    std::string tname   (  args[0].sval);
    std::string filepath ( args[1].sval);
    printf("Filepath is  %s  \nTransformation name is %s \n",filepath.c_str(),tname.c_str());
@@ -452,7 +452,7 @@ static void spline_init(const iocshArgBuf *args ){
 }
 
 static void drvSplineRegistrar(){
-    iocshRegister(&spline_init_def, spline_init);
+    iocshRegister(&spline_bld_def, spline_bld);
 }
 
 

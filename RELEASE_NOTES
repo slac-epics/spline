@@ -9,6 +9,8 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+R2.0.4: - Renamed shell function from splineInit to splineBuild 
+
 R2.0.3: - Renaming functions called by aSub record to have names 
           unique to the spline module.
         - Added splineGetInpParams to expose all parameters from 
