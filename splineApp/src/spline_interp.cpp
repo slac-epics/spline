@@ -63,8 +63,9 @@ void spline::set_array_length(){
       //throw;
   }
   // Exit if no data was retrieved from the file
-  if(i == 1) {
-      printf("No data retrieved from file\n");
+  if(i == 0) {
+      printf("set_array_length: no data retrieved from file\n");
+      initialized = false;
       //throw;
   }
   f.close();
@@ -183,21 +184,23 @@ spline::spline(std::string filename){
         initialized = true;
         //Extract measured data from data file
         set_array_length();
-        parse_file();   
-        printf("Points for spline...\n");
-        printf("x_a = ..\n");
-        for (int i = 0 ; i < N ; ++i){
-            printf("%f, ",x_a[i] );
-        }
-        printf("\n");
-        printf("y_a = ..\n");
-        for (int i = 0 ; i < N ; ++i){
-          printf("%f, ",y_a[i] );
-        }
-        printf("\n");
-        //Build the spline for forward and inverse transformations
-        alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
-        alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
+        if (initialized) {
+        	parse_file();   
+        	printf("Points for spline...\n");
+        	printf("x_a = ..\n");
+        	for (int i = 0 ; i < N ; ++i){
+            		printf("%f, ",x_a[i] );
+       		}
+       		printf("\n");
+        	printf("y_a = ..\n");
+        	for (int i = 0 ; i < N ; ++i){
+          		printf("%f, ",y_a[i] );
+        	}
+        	printf("\n");
+        	//Build the spline for forward and inverse transformations
+        	alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
+        	alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
+	} 
     }
 }
 
