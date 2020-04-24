@@ -1,3 +1,13 @@
+/* spline_sub.cpp: functions to be called by EPICS aSub records to
+ * interface spline implementation with EPICS. 
+ *
+ * NOTE: If at initialization
+ * time the spline is not built correctly, the s.is_initialized() 
+ * function returns FALSE. This is used to prevent processing of the
+ * functions at this level. If such fault occurs, the BRSV field
+ * of the aSub PV using the function is set to 3 = INVALID.
+ * User should check this field */
+
 /*Local libs*/
 #include "spline_sub.h"
 
@@ -68,16 +78,19 @@ static long splineCalcOutput(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpb);
-          return -1;
+         printf("No such transformation %s\n",inpb);
+  	 psub->brsv = 3;	 
+         return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3; 
         return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+	psub->brsv = 3;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      return -2;
     }
 
   } else {
@@ -115,16 +128,19 @@ static long splineGetLimits(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpa);
-          return -1;
+        printf("No such transformation %s\n",inpa);
+	psub->brsv = 3;
+        return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        psub->brsv = 3;
+	printf("Encoutered error please check data for syntax errors, and discontinuities\n");
         return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+	psub->brsv = 3;  
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        return -2;
     }
 
   } else {
@@ -143,7 +159,7 @@ static long splineGetLimits(aSubRecord *psub){
     *(double *)(psub->valb) = outb[0];
     *(double *)(psub->valc) = outc[0];
     *(double *)(psub->vald) = outd[0];
-    printf("Max gap: %f, min gap: %f, max K: %f, min K: %f\n", outa[0], outb[0], outc[0], outd[0]); 
+    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", outa[0], outb[0], outc[0], outd[0]); 
   }
   
   return 0;    
@@ -170,16 +186,19 @@ static long splineGetNumPoints(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpa);
-          return -1;
+        printf("No such transformation %s\n",inpa);
+	psub->brsv = 3;
+	return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;   
         return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+      	psub->brsv = 3;
+	return -2;
     }
 
   } else {
@@ -220,16 +239,19 @@ static long splineGetPoints(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpa);
-          return -1;
+        printf("No such transformation %s\n",inpa);
+       	psub->brsv = 3;
+	return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        psub->brsv = 3;
+	return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;
+        return -2;
     }
 
   } else {
@@ -296,16 +318,19 @@ static long splineGetDate(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpa);
-          return -1;
+        printf("No such transformation %s\n",inpa);
+	psub->brsv = 3;
+        return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;
         return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;
+        return -2;
     }
 
   } else {
@@ -357,16 +382,19 @@ static long splineGetInpPrms(aSubRecord *psub){
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-          printf("No such transformation %s\n",inpa);
-          return -1;
+        printf("No such transformation %s\n",inpa);
+	psub->brsv = 3;
+        return -1;
     }catch (int e) {
       if( e < 0 ) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;
         return e;
       }
     } catch (alglib::ap_error a) {
-          printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -1;
+        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
+	psub->brsv = 3;
+        return -2;
     }
 
   } else {

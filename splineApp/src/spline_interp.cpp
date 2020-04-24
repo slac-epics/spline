@@ -46,27 +46,28 @@ void spline::set_array_length(){
 
   std::string line;
   std::ifstream f( filename );
-  if (f.is_open()){
+  if (f.is_open() && initialized){
       while (getline(f,line)){
          // count only the lines with actual data
          if((line.at(0) != '#') && !(isalpha(line.at(0)))) {
            i++;
 	 }
       }
+      x_a.setlength(i);
+      y_a.setlength(i);
+      N = i;
   }
   else {
-      printf("File could not be opened\n");
-      throw;
+      printf("set_array_length: file could not be opened\n");
+      N = 0;
+      //throw;
   }
   // Exit if no data was retrieved from the file
   if(i == 1) {
       printf("No data retrieved from file\n");
-      throw;
+      //throw;
   }
   f.close();
-  x_a.setlength(i);
-  y_a.setlength(i);
-  N = i;
 }
 
 /*
@@ -121,7 +122,7 @@ void spline::parse_file(){
     std::ifstream f( filename );
     char b;
     int  c=0;
-    if( f.is_open() ){
+    if( f.is_open() && initialized ){
       /*This skips BOM utf headers and non-acsii
       junction before data*/
       f.read(&b,1);
@@ -150,8 +151,8 @@ void spline::parse_file(){
       }
     }
     else {
-        printf("File could not be opened\n");
-        throw;
+        printf("parse_file: file could not be opened\n");
+        //throw;
     }
     f.close();
 }
@@ -168,65 +169,92 @@ void spline::parse_file(){
 spline::spline(std::string filename){
     //Indicate class has been constructed
     printf("spline::spline Filname is %s\n",filename.c_str());
-    initialized = true;
     this->filename = filename.c_str();
-    //Extract measured data from data file
-    set_array_length();
-    parse_file();   
-    printf("Points for spline...\n");
-    printf("x_a = ..\n");
-    for (int i = 0 ; i < N ; ++i){
-      printf("%f, ",x_a[i] );
+   
+    // See if file name is valid
+    std::ifstream f( filename.c_str() );
+    if(!f.is_open()){
+        initialized = false;
+        N = 0;
+        printf("File could not be opened. Spline not initialized\n");
+     
     }
-    printf("\n");
-    printf("y_a = ..\n");
-    for (int i = 0 ; i < N ; ++i){
-      printf("%f, ",y_a[i] );
+    else {
+        initialized = true;
+        //Extract measured data from data file
+        set_array_length();
+        parse_file();   
+        printf("Points for spline...\n");
+        printf("x_a = ..\n");
+        for (int i = 0 ; i < N ; ++i){
+            printf("%f, ",x_a[i] );
+        }
+        printf("\n");
+        printf("y_a = ..\n");
+        for (int i = 0 ; i < N ; ++i){
+          printf("%f, ",y_a[i] );
+        }
+        printf("\n");
+        //Build the spline for forward and inverse transformations
+        alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
+        alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
     }
-    printf("\n");
-    //Build the spline for forward and inverse transformations
-    alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
-    alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);
 }
 
 /* get the limits on x and y from the data file */
 double spline::get_max_X() {
-    double max = x_a[0];
-    for (int i = 1; i < N; i++) {
-        if(x_a[i] > max) {
-            max = x_a[i];
-        }
-    }    
+    double max = 0;
+
+    if(initialized) {
+        max = x_a[0];
+        for (int i = 1; i < N; i++) {
+            if(x_a[i] > max) {
+                max = x_a[i];
+            }
+        }    
+    }
     return max;
 }
 
 double spline::get_min_X() {
-    double min = x_a[0];
-    for (int i = 1; i < N; i++) {
-        if(x_a[i] < min) {
-            min = x_a[i];
+    double min = 0;
+
+    if(initialized) {
+        min = x_a[0];
+        for (int i = 1; i < N; i++) {
+            if(x_a[i] < min) {
+                min = x_a[i];
+            }
         }
     }    
     return min;
 }
 
 double spline::get_max_Y() {
-    double max = y_a[0];
-    for (int i = 1; i < N; i++) {
-        if(y_a[i] > max) {
-            max = y_a[i];
-        }
-    }    
+    double max = 0;
+    
+    if(initialized) {
+        max = y_a[0];
+        for (int i = 1; i < N; i++) {
+            if(y_a[i] > max) {
+                max = y_a[i];
+            }
+        }    
+    }
     return max;
 }
 
 double spline::get_min_Y() {
-    double min = y_a[0];
-    for (int i = 1; i < N; i++) {
-        if(y_a[i] < min) {
-            min = y_a[i];
-        }
-    }    
+    double min = 0;
+    
+    if(initialized) {
+        min = y_a[0];
+        for (int i = 1; i < N; i++) {
+            if(y_a[i] < min) {
+                min = y_a[i];
+            }
+        }    
+    }
     return min;
 }
 
@@ -236,20 +264,44 @@ int spline::get_num_points() {
 
 /* return the X array*/
 int spline::get_X_array(double *& xpts, int* npts){
-    xpts = x_a.getcontent();
-    *npts = N;
-    return 0;
+    int status = 0;
+    if(initialized) {
+        xpts = x_a.getcontent();
+        *npts = N;
+        status = 0;
+    }
+    else {
+     	xpts = NULL;
+	*npts = N;
+        status = -1;
+    }
+    return status;
 }
 
 /* return the Y array*/
 int spline::get_Y_array(double *& ypts, int* npts){
-    ypts = y_a.getcontent();
-    *npts = N;
-    return 0;
+    int status = 0;
+    if(initialized) {
+        ypts = y_a.getcontent();
+        *npts = N;
+        status = 0;
+    }
+    else {
+        status = -1;
+    }
+    return status;
 }
 
 /* Return the date on the file */
 int spline::get_date(char *&date) {
-   date = fileDate;
-   return 0;
+   int status = 0;
+   if(initialized) {
+   	date = fileDate;
+	status = 0;
+   }
+   else {
+	status = -1;
+   }
+
+   return status;
 }

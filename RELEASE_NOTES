@@ -10,7 +10,7 @@
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
 R2.0.4: - Renamed shell function from splineInit to splineBuild 
-        - Graceful handling of invalid file name
+        - Graceful handling of invalid file name (disable processing + set BRSV)
 
 R2.0.3: - Renaming functions called by aSub record to have names 
           unique to the spline module.
