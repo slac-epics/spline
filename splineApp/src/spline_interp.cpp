@@ -55,13 +55,13 @@ void spline::set_array_length(){
       }
   }
   else {
-      printf("File could not be opened. Exiting...\n");
-      std::exit(EXIT_FAILURE);
+      printf("File could not be opened\n");
+      throw;
   }
   // Exit if no data was retrieved from the file
   if(i == 1) {
-      printf("No data retrieved from file. Exiting...\n");
-      std::exit(EXIT_FAILURE);
+      printf("No data retrieved from file\n");
+      throw;
   }
   f.close();
   x_a.setlength(i);
@@ -150,8 +150,8 @@ void spline::parse_file(){
       }
     }
     else {
-        printf("File could not be opened. Exiting...\n");
-        std::exit(EXIT_FAILURE);
+        printf("File could not be opened\n");
+        throw;
     }
     f.close();
 }
