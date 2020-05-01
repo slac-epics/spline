@@ -24,6 +24,7 @@
 #include <alarm.h>
 #include <devLib.h>            /* for S_dev_badRequest and S_dev_badInit */
 #include <recGbl.h>
+#include <errlog.h>
 
 /*Local libs*/
 #include "spline_interp.h"

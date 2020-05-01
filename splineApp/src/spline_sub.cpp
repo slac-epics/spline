@@ -66,37 +66,31 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
   // Transformation direction
   isInverse = (int* ) psub->c;
 
-  /*Grab subroutine that is paired with the record
-  based on tname from field b */
-  s = getSplineFromContainer(std::string(tnam));
+  try{
+	  /*Grab subroutine that is paired with the record
+	  based on tname from field b */
+	  s = getSplineFromContainer(std::string(tnam));
 
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
-    try{
-         recGblRecordError(S_dev_badInit, (void*)psub, "splineCalcOutput: no transformation");
-         psub->brsv = INVALID_ALARM;
-         return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
-      }
+	  /*If this is first call then initialize
+	  the spline*/
+	  if ( ! s.is_initialized() ) {
+		  recGblRecordError(S_dev_badInit, (void*)psub, "splineCalcOutput: no transformation");
+		  psub->brsv = INVALID_ALARM;
+                  return SPL_NO_TRANS;
+	  }
+	  else {
+		  /*Calculate output, then set value a to the output*/
+		  out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
+		  *(double *)(psub->vala) = out; 
+	  }
     } catch (alglib::ap_error a) {
         recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
         psub->brsv = MAJOR_ALARM;
         return SPL_ALGLIB_ERR;
+    }catch (std::exception& e) {
+        errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+        return SPL_BAD_DATA;
     }
-
-  } else {
-
-    /*Calculate output, then set value a to the output*/
-    out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
-    //out = (isInverse) ? s.calc_inv(in) : s.calc(in);
-    *(double *)(psub->vala) = out;
-  
-  }
-  
   return SPL_SUCCESS;    
 }
 
@@ -116,44 +110,40 @@ static epicsInt32 splineGetLimits(aSubRecord *psub){
   char* tnam; 
   tnam = (char*) psub->a;
   
-  s = getSplineFromContainer(std::string(tnam));
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
-    try{
-        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetLimits: no transformation");
-        psub->brsv = INVALID_ALARM;
-        return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-	printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
-      }
-    } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetLimits: alglib error");
-        psub->brsv = MAJOR_ALARM;
-        return SPL_ALGLIB_ERR;
-    }
-
-  } else {
-
-    /*Calculate output, then set value a to the output*/
-    /* max gap */
-    maxY = s.get_max_Y(); 
-    /* min gap */
-    minY = s.get_min_Y(); 
-    /* max K */
-    maxX = s.get_max_X(); 
-    /* min K */
-    minX = s.get_min_X(); 
-    /* Return everything */
-    *(double *)(psub->vala) = maxY;
-    *(double *)(psub->valb) = minY;
-    *(double *)(psub->valc) = maxX;
-    *(double *)(psub->vald) = minX;
-    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", maxY, minY, maxX, minX); 
+  try{
+	s = getSplineFromContainer(std::string(tnam));
+	/*If this is first call then initialize
+	the spline*/
+	if ( ! s.is_initialized() ) {
+            recGblRecordError(S_dev_badInit, (void*)psub, "splineGetLimits: no transformation");
+            psub->brsv = INVALID_ALARM;
+            return SPL_NO_TRANS;
+        }
+	else {
+	    /*Calculate output, then set value a to the output*/
+	    /* max gap */
+	    maxY = s.get_max_Y(); 
+	    /* min gap */
+	    minY = s.get_min_Y(); 
+	    /* max K */
+	    maxX = s.get_max_X(); 
+	    /* min K */
+	    minX = s.get_min_X(); 
+	    /* Return everything */
+	    *(double *)(psub->vala) = maxY;
+	    *(double *)(psub->valb) = minY;
+	    *(double *)(psub->valc) = maxX;
+	    *(double *)(psub->vald) = minX;
+	    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", maxY, minY, maxX, minX); 
+        }
+  } catch (alglib::ap_error a) {
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      psub->brsv = MAJOR_ALARM;
+      return SPL_ALGLIB_ERR;
+  }catch (std::exception& e) {
+      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      return SPL_BAD_DATA;
   }
-  
   return SPL_SUCCESS;    
 }
 
@@ -172,32 +162,30 @@ static epicsInt32 splineGetNumPoints(aSubRecord *psub){
   char* tnam; 
   tnam = (char*) psub->a;
    
-  s = getSplineFromContainer(std::string(tnam));
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
-    try{
-        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetNumPoints: no transformation");
-        psub->brsv = INVALID_ALARM;
-	return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
-      }
-    } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetNumPoints: alglib error");
-        psub->brsv = MAJOR_ALARM;
-	return SPL_ALGLIB_ERR; 
-    }
-
-  } else {
-    /*Fetch number of data points*/
-    numDataPoints = s.get_num_points(); 
-    *(epicsInt32 *)(psub->vala) = numDataPoints;
-    printf("Num points: %d\n", numDataPoints); 
+  try{
+	  s = getSplineFromContainer(std::string(tnam));
+	  /*If this is first call then initialize
+	  the spline*/
+	  if ( ! s.is_initialized() ) {
+		recGblRecordError(S_dev_badInit, (void*)psub, "splineGetNumPoints: no transformation");
+		psub->brsv = INVALID_ALARM;
+		return SPL_NO_TRANS;
+	  }
+	  else {
+	       /*Fetch number of data points*/
+	       numDataPoints = s.get_num_points(); 
+	       *(epicsInt32 *)(psub->vala) = numDataPoints;
+	       printf("Num points: %d\n", numDataPoints); 
+	  }
+  } catch (alglib::ap_error a) {
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      psub->brsv = MAJOR_ALARM;
+      return SPL_ALGLIB_ERR;
+  }catch (std::exception& e) {
+      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      return SPL_BAD_DATA;
   }
-  
+
   return SPL_SUCCESS;    
 }
 
@@ -222,67 +210,66 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
   char* tnam; 
   tnam = (char*) psub->a;
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
-   s = getSplineFromContainer(std::string(tnam));
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
-    try{
-        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetPoints: no transformation");
-        psub->brsv = INVALID_ALARM;
-	return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	return e;
-      }
-    } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetPoints: alglib error");
-        psub->brsv = MAJOR_ALARM;
-        return SPL_ALGLIB_ERR;
-    }
+  try{
+	s = getSplineFromContainer(std::string(tnam));
+	/*If this is first call then initialize
+	the spline*/
+	if ( ! s.is_initialized() ) {
+	     recGblRecordError(S_dev_badInit, (void*)psub, "splineGetPoints: no transformation");
+             psub->brsv = INVALID_ALARM;
+	     return SPL_NO_TRANS;
+	}
+	else {
+	     /* clear waveform */
+	     epicsMutexMustLock(dpvt_ps->mlock); 
+	     memset(psub->vala,0,nbytes);
+	     epicsMutexUnlock(dpvt_ps->mlock);
+	     psub->neva=0;
+	     
+	     epicsMutexMustLock(dpvt_ps->mlock); 
+	     memset(psub->valb,0,nbytes);
+	     epicsMutexUnlock(dpvt_ps->mlock);
+	     psub->nevb=0;
+	     
+	     /* Fetch the data points */
+	     s.get_X_array(xpts, &xnpts);
+	     s.get_Y_array(ypts, &ynpts);
+	     /* Make sure we have retrieved the same number of points from the two arrays*/
+	    if(xnpts == ynpts) {
+		npts = xnpts;
+	     }
+	     else {
+		printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
+		psub->brsv = MAJOR_ALARM;
+		return SPL_BAD_DATA;
+	     }
+	     /* Assign data points to the output*/
+	     for (int i = 0; i < npts; i++) {
+		 epicsMutexMustLock(dpvt_ps->mlock)
+		 ((double*)psub->vala)[i] = xpts[i];
+		 epicsMutexUnlock(dpvt_ps->mlock);
+	     }
+	     psub->neva = npts;
+	     
+	     /* Assign data points to the output*/
+	     for (int i = 0; i < npts; i++) {
+		 epicsMutexMustLock(dpvt_ps->mlock)
+		 ((double*)psub->valb)[i] = ypts[i];
+		 epicsMutexUnlock(dpvt_ps->mlock);
+	     }
+	     psub->nevb = npts;
+	     
+	   }
+  } catch (alglib::ap_error a) {
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      psub->brsv = MAJOR_ALARM;
+      return SPL_ALGLIB_ERR;
+  }catch (std::exception& e) {
+      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      return SPL_BAD_DATA;
+  }
 
-  } else {
-     /* clear waveform */
-     epicsMutexMustLock(dpvt_ps->mlock); 
-     memset(psub->vala,0,nbytes);
-     epicsMutexUnlock(dpvt_ps->mlock);
-     psub->neva=0;
-     
-     epicsMutexMustLock(dpvt_ps->mlock); 
-     memset(psub->valb,0,nbytes);
-     epicsMutexUnlock(dpvt_ps->mlock);
-     psub->nevb=0;
-     
-     /* Fetch the data points */
-     s.get_X_array(xpts, &xnpts);
-     s.get_Y_array(ypts, &ynpts);
-     /* Make sure we have retrieved the same number of points from the two arrays*/
-    if(xnpts == ynpts) {
-        npts = xnpts;
-     }
-     else {
-        printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
-        psub->brsv = MAJOR_ALARM;
-        return SPL_BAD_DATA;
-     }
-     /* Assign data points to the output*/
-     for (int i = 0; i < npts; i++) {
-         epicsMutexMustLock(dpvt_ps->mlock)
-         ((double*)psub->vala)[i] = xpts[i];
-         epicsMutexUnlock(dpvt_ps->mlock);
-     }
-     psub->neva = npts;
-     
-     /* Assign data points to the output*/
-     for (int i = 0; i < npts; i++) {
-         epicsMutexMustLock(dpvt_ps->mlock)
-         ((double*)psub->valb)[i] = ypts[i];
-         epicsMutexUnlock(dpvt_ps->mlock);
-     }
-     psub->nevb = npts;
-     
-   }
-  
+
    return SPL_SUCCESS;    
 }
 
@@ -301,40 +288,38 @@ static epicsInt32 splineGetDate(aSubRecord *psub){
   char* tnam; 
   tnam = (char*) psub->a;
   
-  s = getSplineFromContainer(std::string(tnam));
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
     try{
-        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetDate: no transformation");
-        psub->brsv = INVALID_ALARM;
-        return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
-      }
-    } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetDate: alglib error");
-        psub->brsv = MAJOR_ALARM;
-        return SPL_ALGLIB_ERR;
-    }
+	s = getSplineFromContainer(std::string(tnam));
+	/*If this is first call then initialize
+	the spline*/
+	if ( ! s.is_initialized() ) {
+	      recGblRecordError(S_dev_badInit, (void*)psub, "splineGetDate: no transformation");
+	      psub->brsv = INVALID_ALARM;
+	      return SPL_NO_TRANS;
+	}
+	else {
+	     
+	     /* Fetch the date */
+	     s.get_date(date);
+	     /* Assign date to the output*/
+	    for(int i = 0; i < DATEFILE_CHARS; i++) {
+	      if(date[i]  == '\0' || date[i] == '\r') {
+		 break;
+	      }
+	      else {
+		((char*)psub->vala)[i]  = date[i];
+	      }
+	    }
+	}
+  } catch (alglib::ap_error a) {
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      psub->brsv = MAJOR_ALARM;
+      return SPL_ALGLIB_ERR;
+  }catch (std::exception& e) {
+      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      return SPL_BAD_DATA;
+  }
 
-  } else {
-     
-     /* Fetch the date */
-     s.get_date(date);
-     /* Assign date to the output*/
-    for(int i = 0; i < DATEFILE_CHARS; i++) {
-      if(date[i]  == '\0' || date[i] == '\r') {
-         break;
-      }
-      else {
-        ((char*)psub->vala)[i]  = date[i];
-      }
-    }
-   }
-  
    return SPL_SUCCESS;    
 }
 
@@ -364,85 +349,83 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
   tnam = (char*) psub->a;
   
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
-  s = getSplineFromContainer(std::string(tnam));
-  /*If this is first call then initialize
-  the spline*/
-  if ( ! s.is_initialized() ) {
     try{
-        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetInpPrms: no transformation");
-        psub->brsv = INVALID_ALARM;
-        return SPL_NO_TRANS;
-    }catch (int e) {
-      if( e < 0 ) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return e;
-      }
-    } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: alglib error");
-        psub->brsv = MAJOR_ALARM;
-        return SPL_ALGLIB_ERR;
-    }
-
-  } else {
-  
-  /* Fetch the number of data points */   
-  numDataPoints = s.get_num_points(); 
-  *(epicsInt32 *)(psub->vala) = numDataPoints;
-  printf("Num points splineGetInpParams: %d\n", numDataPoints); 
-     
-  /* Fetch the data points */
-  /* clear waveform */
-  epicsMutexMustLock(dpvt_ps->mlock); 
-  memset(psub->valb,0,nbytes);
-  epicsMutexUnlock(dpvt_ps->mlock);
-  psub->nevb=0;
-     
-  epicsMutexMustLock(dpvt_ps->mlock); 
-  memset(psub->valc,0,nbytes);
-  epicsMutexUnlock(dpvt_ps->mlock);
-  psub->nevc=0;
-     
-  /* Fetch the data points */
-  s.get_X_array(xpts, &xnpts);
-  s.get_Y_array(ypts, &ynpts);
-  /* Make sure we have retrieved the same number of points from the two arrays*/
-  if(xnpts == ynpts) {
-      npts = xnpts;
-  }
-  else {
-     printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
-      psub->brsv = MAJOR_ALARM;
-     return SPL_BAD_DATA;
-  }
-  /* Assign data points to the output*/
-  for (int i = 0; i < npts; i++) {
-      epicsMutexMustLock(dpvt_ps->mlock)
-      ((double*)psub->valb)[i] = xpts[i];
-      epicsMutexUnlock(dpvt_ps->mlock);
-  }
-  psub->nevb = npts;
-     
- /* Assign data points to the output*/
- for (int i = 0; i < npts; i++) {
-     epicsMutexMustLock(dpvt_ps->mlock)
-     ((double*)psub->valc)[i] = ypts[i];
-     epicsMutexUnlock(dpvt_ps->mlock);
- }
- psub->nevc = npts;
-     
- /* Fetch the date when the file was saved */
- s.get_date(date);
- /* Assign all the character to the output*/
- for(int i = 0; i < DATEFILE_CHARS; i++) {
-     if(date[i]  == '\0' || date[i] == '\r') {
-         break;
-      }
-      else {
-        ((char*)psub->vald)[i]  = date[i];
-      }
-    }
+	s = getSplineFromContainer(std::string(tnam));
+	/*If this is first call then initialize
+	the spline*/
+	if ( ! s.is_initialized() ) {
+		recGblRecordError(S_dev_badInit, (void*)psub, "splineGetInpPrms: no transformation");
+		psub->brsv = INVALID_ALARM;
+		return SPL_NO_TRANS;
+	}
+	else {
+	  
+	  /* Fetch the number of data points */   
+	  numDataPoints = s.get_num_points(); 
+	  *(epicsInt32 *)(psub->vala) = numDataPoints;
+	  printf("Num points splineGetInpParams: %d\n", numDataPoints); 
+	     
+	  /* Fetch the data points */
+	  /* clear waveform */
+	  epicsMutexMustLock(dpvt_ps->mlock); 
+	  memset(psub->valb,0,nbytes);
+	  epicsMutexUnlock(dpvt_ps->mlock);
+	  psub->nevb=0;
+	     
+	  epicsMutexMustLock(dpvt_ps->mlock); 
+	  memset(psub->valc,0,nbytes);
+	  epicsMutexUnlock(dpvt_ps->mlock);
+	  psub->nevc=0;
+	     
+	  /* Fetch the data points */
+	  s.get_X_array(xpts, &xnpts);
+	  s.get_Y_array(ypts, &ynpts);
+	  /* Make sure we have retrieved the same number of points from the two arrays*/
+	  if(xnpts == ynpts) {
+	      npts = xnpts;
+	  }
+	  else {
+             recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: X and Y number of data points differ");
+	     psub->brsv = MAJOR_ALARM;
+	     return SPL_BAD_DATA;
+	  }
+	  /* Assign data points to the output*/
+	  for (int i = 0; i < npts; i++) {
+	      epicsMutexMustLock(dpvt_ps->mlock)
+	      ((double*)psub->valb)[i] = xpts[i];
+	      epicsMutexUnlock(dpvt_ps->mlock);
+	  }
+	  psub->nevb = npts;
+	     
+	 /* Assign data points to the output*/
+	 for (int i = 0; i < npts; i++) {
+	     epicsMutexMustLock(dpvt_ps->mlock)
+	     ((double*)psub->valc)[i] = ypts[i];
+	     epicsMutexUnlock(dpvt_ps->mlock);
+	 }
+	 psub->nevc = npts;
+	     
+	 /* Fetch the date when the file was saved */
+	 s.get_date(date);
+	 /* Assign all the character to the output*/
+	 for(int i = 0; i < DATEFILE_CHARS; i++) {
+	     if(date[i]  == '\0' || date[i] == '\r') {
+		 break;
+	      }
+	      else {
+		((char*)psub->vald)[i]  = date[i];
+	      }
+	 }
    }
-  
+  } catch (alglib::ap_error a) {
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      psub->brsv = MAJOR_ALARM;
+      return SPL_ALGLIB_ERR;
+  }catch (std::exception& e) {
+      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      return SPL_BAD_DATA;
+  }
+
    return SPL_SUCCESS;    
 }
 
