@@ -11,11 +11,6 @@
 /*Local libs*/
 #include "spline_sub.h"
 
-/* Define SUCCESS macro*/
-#ifndef SUCCESS
-#define SUCCESS 1
-#endif
-
 /*
 * spline getSplineFromContainer(aSubRecord* psub){
 *     -retrieves spline objects from container.
@@ -36,11 +31,11 @@ static spline getSplineFromContainer(std::string psub){
  * Generic spline initialization function 
  * To be used in the INAM field
 */
-static long splineInit(aSubRecord *psub) {
-  long status = SUCCESS;
+static epicsInt32 splineInit(aSubRecord *psub) {
+  epicsInt32 status = SPL_SUCCESS;
   devicePvt_ts *dpvt_ps = NULL;
   /* Check that this pv has not already been initialized */
-  if ( psub->dpvt ) return (-1);
+  if ( psub->dpvt ) return (SPL_BAD_PTR);
   
   /* Allocate the private device information */
   dpvt_ps = (devicePvt_ts*)callocMustSucceed(1,sizeof(devicePvt_ts),"calloc failed for mgntIVBInit" );
@@ -57,54 +52,52 @@ static long splineInit(aSubRecord *psub) {
 * - VAL = f(A)
 *
 */
-static long splineCalcOutput(aSubRecord *psub){
+static epicsInt32 splineCalcOutput(aSubRecord *psub){
   spline s;
 
   
   //Cast EPICS fields to correct types
-  double* inpa; char* inpb; int* inpc;
-  double out[1];
-  inpa = (double*) psub->a;
-  inpb = (char*) psub->b;
-  inpc = (int* ) psub->c;
+  double* in; char* tnam; int* isInverse;
+  double out;
+  // Input value to transformation
+  in = (double*) psub->a;
+  // Transformation name
+  tnam = (char*) psub->b;
+  // Transformation direction
+  isInverse = (int* ) psub->c;
 
   /*Grab subroutine that is paired with the record
   based on tname from field b */
-  s = getSplineFromContainer(std::string(inpb));
+  s = getSplineFromContainer(std::string(tnam));
 
-
-  
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-         printf("No such transformation %s\n",inpb);
-  	 psub->brsv = 3;	 
-         return -1;
+         recGblRecordError(S_dev_badInit, (void*)psub, "splineCalcOutput: no transformation");
+         psub->brsv = INVALID_ALARM;
+         return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
         printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3; 
         return e;
       }
     } catch (alglib::ap_error a) {
-	psub->brsv = 3;
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+        psub->brsv = MAJOR_ALARM;
+        return SPL_ALGLIB_ERR;
     }
 
   } else {
-    /*Field C indicates whether process is inverse or forward*/
-    double in = inpa[0] ;
-    double isInverse = inpc[0];
 
     /*Calculate output, then set value a to the output*/
-    out[0] = (isInverse) ? s.calc_inv(in) : s.calc(in);
-    *(double *)(psub->vala) = out[0];
+    out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
+    //out = (isInverse) ? s.calc_inv(in) : s.calc(in);
+    *(double *)(psub->vala) = out;
   
   }
   
-  return 0;    
+  return SPL_SUCCESS;    
 }
 
 
@@ -114,55 +107,54 @@ static long splineCalcOutput(aSubRecord *psub){
 * - retrieve max and min values of data points used to build spline 
 *
 */
-static long splineGetLimits(aSubRecord *psub){
+static epicsInt32 splineGetLimits(aSubRecord *psub){
   spline s;
 
   
   //Cast EPICS fields to correct types
-  double outa[1]; double outb[1]; double outc[1]; double outd[1];
-  char* inpa; 
-  inpa = (char*) psub->a;
+  double maxY; double minY; double maxX; double minX;
+  char* tnam; 
+  tnam = (char*) psub->a;
   
-  s = getSplineFromContainer(std::string(inpa));
+  s = getSplineFromContainer(std::string(tnam));
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-        printf("No such transformation %s\n",inpa);
-	psub->brsv = 3;
-        return -1;
+        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetLimits: no transformation");
+        psub->brsv = INVALID_ALARM;
+        return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
-        psub->brsv = 3;
 	printf("Encoutered error please check data for syntax errors, and discontinuities\n");
         return e;
       }
     } catch (alglib::ap_error a) {
-	psub->brsv = 3;  
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetLimits: alglib error");
+        psub->brsv = MAJOR_ALARM;
+        return SPL_ALGLIB_ERR;
     }
 
   } else {
 
     /*Calculate output, then set value a to the output*/
     /* max gap */
-    outa[0] = s.get_max_Y(); 
+    maxY = s.get_max_Y(); 
     /* min gap */
-    outb[0] = s.get_min_Y(); 
+    minY = s.get_min_Y(); 
     /* max K */
-    outc[0] = s.get_max_X(); 
+    maxX = s.get_max_X(); 
     /* min K */
-    outd[0] = s.get_min_X(); 
+    minX = s.get_min_X(); 
     /* Return everything */
-    *(double *)(psub->vala) = outa[0];
-    *(double *)(psub->valb) = outb[0];
-    *(double *)(psub->valc) = outc[0];
-    *(double *)(psub->vald) = outd[0];
-    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", outa[0], outb[0], outc[0], outd[0]); 
+    *(double *)(psub->vala) = maxY;
+    *(double *)(psub->valb) = minY;
+    *(double *)(psub->valc) = maxX;
+    *(double *)(psub->vald) = minX;
+    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", maxY, minY, maxX, minX); 
   }
   
-  return 0;    
+  return SPL_SUCCESS;    
 }
 
 /*
@@ -171,46 +163,42 @@ static long splineGetLimits(aSubRecord *psub){
 * - get number of data points used to buld spline 
 *
 */
-static long splineGetNumPoints(aSubRecord *psub){
+static epicsInt32 splineGetNumPoints(aSubRecord *psub){
   spline s;
 
   
   //Cast EPICS fields to correct types
-  //epicsInt32 outa[1]; 
   epicsInt32 numDataPoints; 
-  char* inpa; 
-  inpa = (char*) psub->a;
+  char* tnam; 
+  tnam = (char*) psub->a;
    
-  s = getSplineFromContainer(std::string(inpa));
+  s = getSplineFromContainer(std::string(tnam));
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-        printf("No such transformation %s\n",inpa);
-	psub->brsv = 3;
-	return -1;
+        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetNumPoints: no transformation");
+        psub->brsv = INVALID_ALARM;
+	return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
         printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;   
         return e;
       }
     } catch (alglib::ap_error a) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-      	psub->brsv = 3;
-	return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetNumPoints: alglib error");
+        psub->brsv = MAJOR_ALARM;
+	return SPL_ALGLIB_ERR; 
     }
 
   } else {
     /*Fetch number of data points*/
-    //outa[0] = s.get_num_points(); 
-    //*(epicsInt32 *)(psub->vala) = outa[0];
     numDataPoints = s.get_num_points(); 
     *(epicsInt32 *)(psub->vala) = numDataPoints;
     printf("Num points: %d\n", numDataPoints); 
   }
   
-  return 0;    
+  return SPL_SUCCESS;    
 }
 
 /*
@@ -219,7 +207,7 @@ static long splineGetNumPoints(aSubRecord *psub){
 * - get data points from input file (points stored in memory used for interpolation)
 *
 */
-static long splineGetPoints(aSubRecord *psub){
+static epicsInt32 splineGetPoints(aSubRecord *psub){
   spline s;
   // Pointers to hold the returned values
   double* xpts = NULL; 
@@ -231,27 +219,26 @@ static long splineGetPoints(aSubRecord *psub){
   size_t         nbytes = sizeof(double) * psub->nova;
 
   //Cast EPICS fields to correct types
-  char* inpa; 
-  inpa = (char*) psub->a;
+  char* tnam; 
+  tnam = (char*) psub->a;
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
-   s = getSplineFromContainer(std::string(inpa));
+   s = getSplineFromContainer(std::string(tnam));
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-        printf("No such transformation %s\n",inpa);
-       	psub->brsv = 3;
-	return -1;
+        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetPoints: no transformation");
+        psub->brsv = INVALID_ALARM;
+	return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
         printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-        psub->brsv = 3;
 	return e;
       }
     } catch (alglib::ap_error a) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;
-        return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetPoints: alglib error");
+        psub->brsv = MAJOR_ALARM;
+        return SPL_ALGLIB_ERR;
     }
 
   } else {
@@ -275,7 +262,8 @@ static long splineGetPoints(aSubRecord *psub){
      }
      else {
         printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
-        return 1;
+        psub->brsv = MAJOR_ALARM;
+        return SPL_BAD_DATA;
      }
      /* Assign data points to the output*/
      for (int i = 0; i < npts; i++) {
@@ -295,7 +283,7 @@ static long splineGetPoints(aSubRecord *psub){
      
    }
   
-   return 0;    
+   return SPL_SUCCESS;    
 }
 
 /*
@@ -304,33 +292,32 @@ static long splineGetPoints(aSubRecord *psub){
 * - get date from calibration file 
 *
 */
-static long splineGetDate(aSubRecord *psub){
+static epicsInt32 splineGetDate(aSubRecord *psub){
   spline s;
   // Pointers to hold the returned values
   char* date = NULL; 
 
   //Cast EPICS fields to correct types
-  char* inpa; 
-  inpa = (char*) psub->a;
+  char* tnam; 
+  tnam = (char*) psub->a;
   
-  s = getSplineFromContainer(std::string(inpa));
+  s = getSplineFromContainer(std::string(tnam));
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-        printf("No such transformation %s\n",inpa);
-	psub->brsv = 3;
-        return -1;
+        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetDate: no transformation");
+        psub->brsv = INVALID_ALARM;
+        return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
         printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;
         return e;
       }
     } catch (alglib::ap_error a) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;
-        return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetDate: alglib error");
+        psub->brsv = MAJOR_ALARM;
+        return SPL_ALGLIB_ERR;
     }
 
   } else {
@@ -348,7 +335,7 @@ static long splineGetDate(aSubRecord *psub){
     }
    }
   
-   return 0;    
+   return SPL_SUCCESS;    
 }
 
 /* 
@@ -359,7 +346,7 @@ static long splineGetDate(aSubRecord *psub){
  * - OUTC: Data points in Y array (DOUBLE - waveform)
  * - OUTD: Date when the calibration file was saved (STRING)
 */ 
-static long splineGetInpPrms(aSubRecord *psub){
+static epicsInt32 splineGetInpPrms(aSubRecord *psub){
   spline s;
   // Pointers to hold the returned values
   char* date = NULL; 
@@ -373,28 +360,27 @@ static long splineGetInpPrms(aSubRecord *psub){
   size_t nbytes = sizeof(double) * psub->nova;
 
   //Cast EPICS fields to correct types
-  char* inpa; 
-  inpa = (char*) psub->a;
+  char* tnam; 
+  tnam = (char*) psub->a;
   
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
-  s = getSplineFromContainer(std::string(inpa));
+  s = getSplineFromContainer(std::string(tnam));
   /*If this is first call then initialize
   the spline*/
   if ( ! s.is_initialized() ) {
     try{
-        printf("No such transformation %s\n",inpa);
-	psub->brsv = 3;
-        return -1;
+        recGblRecordError(S_dev_badInit, (void*)psub, "splineGetInpPrms: no transformation");
+        psub->brsv = INVALID_ALARM;
+        return SPL_NO_TRANS;
     }catch (int e) {
       if( e < 0 ) {
         printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;
         return e;
       }
     } catch (alglib::ap_error a) {
-        printf("Encoutered error please check data for syntax errors, and discontinuities\n");
-	psub->brsv = 3;
-        return -2;
+        recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: alglib error");
+        psub->brsv = MAJOR_ALARM;
+        return SPL_ALGLIB_ERR;
     }
 
   } else {
@@ -425,7 +411,8 @@ static long splineGetInpPrms(aSubRecord *psub){
   }
   else {
      printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
-     return 1;
+      psub->brsv = MAJOR_ALARM;
+     return SPL_BAD_DATA;
   }
   /* Assign data points to the output*/
   for (int i = 0; i < npts; i++) {
@@ -456,7 +443,7 @@ static long splineGetInpPrms(aSubRecord *psub){
     }
    }
   
-   return 0;    
+   return SPL_SUCCESS;    
 }
 
 
