@@ -169,7 +169,6 @@ void spline::parse_file(){
 */
 spline::spline(std::string filename){
     //Indicate class has been constructed
-    printf("spline::spline Filname is %s\n",filename.c_str());
     this->filename = filename.c_str();
    
     // See if file name is valid
@@ -186,17 +185,6 @@ spline::spline(std::string filename){
         set_array_length();
         if (initialized) {
         	parse_file();   
-        	printf("Points for spline...\n");
-        	printf("x_a = ..\n");
-        	for (int i = 0 ; i < N ; ++i){
-            		printf("%f, ",x_a[i] );
-       		}
-       		printf("\n");
-        	printf("y_a = ..\n");
-        	for (int i = 0 ; i < N ; ++i){
-          		printf("%f, ",y_a[i] );
-        	}
-        	printf("\n");
         	//Build the spline for forward and inverse transformations
         	alglib::spline1dbuildcubic(x_a,y_a,N,0,0,0,0,interp);
         	alglib::spline1dbuildcubic(y_a,x_a,N,0,0,0,0,interp_inv);

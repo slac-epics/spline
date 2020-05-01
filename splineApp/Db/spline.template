@@ -1,13 +1,18 @@
 # spline.template
 # Example records that show how to use functions in spline module
 
-# Input value
+ record(bo, "$(P)$(M):Debug") {
+   field(DESC, "Enable debugging")
+   field(VAL, "0")
+   field(ZNAM, "NO")
+   field(ONAM, "YES")
+ }
+
  record(ai, "$(P)$(M):TempOut") {
    field(DESC, "Store intermediate output from spline")
    field(VAL, "0")
  }
  
-# Output value
 record(ai, "$(P)$(M):TempIn") {
    field(DESC, "Store intermediate input to spline")
    field(VAL, "0")
@@ -20,9 +25,11 @@ record(aSub, "$(P)$(M):Trans$(DIR)") {
   field(INPA, "$(P)$(M):TempIn.VAL NPP")
   field(INPB, "$(P)$(M):Trans$(DIR)Name.VAL")
   field(INPC, "$(P)$(M):Trans$(DIR)Dir.VAL")
-  field(OUTA, "$(P)$(M):TempOut.VAL PP")
+  field(INPD, "$(P)$(M):Debug")
+  field(OUTA, "$(P)$(M):TempOut.VAL PP MS")
   field(FTB, "STRING")
   field(FTC, "LONG")
+  field(FTD, "LONG")
 }
 
 record(bi, "$(P)$(M):Trans$(DIR)Dir") {
@@ -44,11 +51,13 @@ record(aSub, "$(P)$(M):Limits") {
   field(DESC, "Limits on $(X) and $(Y)")
   field(SNAM, "splineGetLimits")
   field(INPA, "$(P)$(M):Trans$(DIR)Name.VAL")
-  field(OUTA, "$(P)$(M):Max$(Y).VAL PP")
-  field(OUTB, "$(P)$(M):Min$(Y).VAL PP")
-  field(OUTC, "$(P)$(M):Max$(X).VAL PP")
-  field(OUTD, "$(P)$(M):Min$(X).VAL PP")
+  field(INPB, "$(P)$(M):Debug")
+  field(OUTA, "$(P)$(M):Max$(Y).VAL PP MS")
+  field(OUTB, "$(P)$(M):Min$(Y).VAL PP MS")
+  field(OUTC, "$(P)$(M):Max$(X).VAL PP MS")
+  field(OUTD, "$(P)$(M):Min$(X).VAL PP MS")
   field(FTA, "STRING")
+  field(FTB, "LONG")
   field(PINI, "YES")
 }
 
@@ -80,8 +89,10 @@ record(aSub, "$(P)$(M):GetNumPoints") {
   field(DESC, "Get number of points from file")
   field(SNAM, "splineGetNumPoints")
   field(INPA, "$(P)$(M):Trans$(DIR)Name.VAL")
-  field(OUTA, "$(P)$(M):NumPoints.VAL PP")
+  field(INPB, "$(P)$(M):Debug")
+  field(OUTA, "$(P)$(M):NumPoints.VAL PP MS")
   field(FTA, "STRING")
+  field(FTB, "LONG")
   field(FTVA, "LONG")
 #  field(PINI, "YES")
   field(FLNK, "$(P)$(M):GetPoints")
@@ -104,13 +115,15 @@ record(aSub, "$(P)$(M):GetPoints") {
   field(INAM, "splineInit")
   field(SNAM, "splineGetPoints")
   field(INPA, "$(P)$(M):Trans$(DIR)Name.VAL")
-  field(OUTA, "$(P)$(M):XPoints.VAL PP")
-  field(OUTB, "$(P)$(M):YPoints.VAL PP")
+  field(INPB, "$(P)$(M):Debug")
+  field(OUTA, "$(P)$(M):XPoints.VAL PP MS")
+  field(OUTB, "$(P)$(M):YPoints.VAL PP MS")
+  field(FTA, "STRING")
+  field(FTB, "LONG")
   field(FTVA, "DOUBLE")
   field(FTVB, "DOUBLE")
   field(NOVA, "100")
   field(NOVB, "100")
-  field(FTA, "STRING")
 }
 
 record(stringin, "$(P)$(M):TransDate") {
@@ -122,8 +135,10 @@ record(aSub, "$(P)$(M):GetDate") {
   field(INAM, "splineInit")
   field(SNAM, "splineGetDate")
   field(INPA, "$(P)$(M):Trans$(DIR)Name.VAL")
+  field(INPB, "$(P)$(M):Debug")
   field(OUTA, "$(P)$(M):TransDate.VAL PP")
   field(FTA, "STRING")
+  field(FTB, "LONG")
   field(FTVA, "STRING")
 #  field(PINI, "YES")
 }
@@ -133,11 +148,13 @@ record(aSub, "$(P)$(M):GetInpPrms") {
   field(INAM, "splineInit")
   field(SNAM, "splineGetInpPrms")
   field(INPA, "$(P)$(M):Trans$(DIR)Name.VAL")
-  field(OUTA, "$(P)$(M):NumPoints.VAL PP")
-  field(OUTB, "$(P)$(M):XPoints.VAL PP")
-  field(OUTC, "$(P)$(M):YPoints.VAL PP")
-  field(OUTD, "$(P)$(M):TransDate.VAL PP")
+  field(INPB, "$(P)$(M):Debug")
+  field(OUTA, "$(P)$(M):NumPoints.VAL PP MS")
+  field(OUTB, "$(P)$(M):XPoints.VAL PP MS")
+  field(OUTC, "$(P)$(M):YPoints.VAL PP MS")
+  field(OUTD, "$(P)$(M):TransDate.VAL PP MS")
   field(FTA, "STRING")
+  field(FTB, "LONG")
   field(FTVA, "LONG")
   field(FTVB, "DOUBLE")
   field(FTVC, "DOUBLE")

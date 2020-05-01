@@ -57,14 +57,19 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
 
   
   //Cast EPICS fields to correct types
-  double* in; char* tnam; int* isInverse;
+  double* in; char* tnam; 
+  epicsInt32* isInverse;
+  epicsInt32 debug = 0;
   double out;
   // Input value to transformation
   in = (double*) psub->a;
   // Transformation name
   tnam = (char*) psub->b;
   // Transformation direction
-  isInverse = (int* ) psub->c;
+  isInverse = (epicsInt32* ) psub->c;
+
+  // See if debugging is enabled
+  debug = *(epicsInt32* )psub->d;
 
   try{
 	  /*Grab subroutine that is paired with the record
@@ -81,6 +86,9 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
 	  else {
 		  /*Calculate output, then set value a to the output*/
 		  out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
+		  if(debug) {
+                      printf("%s splineCalcOutput: out = %f\n", psub->name, out);
+                  }
 		  *(double *)(psub->vala) = out; 
 	  }
     } catch (alglib::ap_error a) {
@@ -107,9 +115,11 @@ static epicsInt32 splineGetLimits(aSubRecord *psub){
   
   //Cast EPICS fields to correct types
   double maxY; double minY; double maxX; double minX;
-  char* tnam; 
+  char* tnam;
+  epicsInt32 debug = 0; 
   tnam = (char*) psub->a;
-  
+  debug = *(epicsInt32*) psub->b;  
+
   try{
 	s = getSplineFromContainer(std::string(tnam));
 	/*If this is first call then initialize
@@ -134,10 +144,12 @@ static epicsInt32 splineGetLimits(aSubRecord *psub){
 	    *(double *)(psub->valb) = minY;
 	    *(double *)(psub->valc) = maxX;
 	    *(double *)(psub->vald) = minX;
-	    printf("Max Y: %f, min Y: %f, max X: %f, min X: %f\n", maxY, minY, maxX, minX); 
-        }
+            if(debug) {
+	        printf("%s splineGetLimits: Max Y: %f, min Y: %f, max X: %f, min X: %f\n", psub->name, maxY, minY, maxX, minX); 
+            }
+	 }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetLimits: alglib error");
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
@@ -159,8 +171,10 @@ static epicsInt32 splineGetNumPoints(aSubRecord *psub){
   
   //Cast EPICS fields to correct types
   epicsInt32 numDataPoints; 
-  char* tnam; 
+  char* tnam;
+  epicsInt32 debug = 0; 
   tnam = (char*) psub->a;
+  debug = *(epicsInt32*) psub->b;
    
   try{
 	  s = getSplineFromContainer(std::string(tnam));
@@ -175,10 +189,12 @@ static epicsInt32 splineGetNumPoints(aSubRecord *psub){
 	       /*Fetch number of data points*/
 	       numDataPoints = s.get_num_points(); 
 	       *(epicsInt32 *)(psub->vala) = numDataPoints;
-	       printf("Num points: %d\n", numDataPoints); 
+               if(debug) {
+	           printf("%s splineGetNumPoints num points: %d\n",psub->name, numDataPoints); 
+	       }
 	  }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetNumPoints: alglib error");
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
@@ -200,15 +216,17 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
   // Pointers to hold the returned values
   double* xpts = NULL; 
   double* ypts = NULL; 
-  int npts = 0;
-  int xnpts = 0;
-  int ynpts = 0;
+  epicsInt32 npts = 0;
+  epicsInt32 xnpts = 0;
+  epicsInt32 ynpts = 0;
   devicePvt_ts  *dpvt_ps = NULL;
   size_t         nbytes = sizeof(double) * psub->nova;
+  epicsInt32 debug = 0;
 
   //Cast EPICS fields to correct types
   char* tnam; 
   tnam = (char*) psub->a;
+  debug = *(epicsInt32*) psub->b;
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
   try{
 	s = getSplineFromContainer(std::string(tnam));
@@ -239,7 +257,7 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
 		npts = xnpts;
 	     }
 	     else {
-		printf("X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", xnpts, ynpts);
+		printf("%s splineGetPoints: X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", psub->name, xnpts, ynpts);
 		psub->brsv = MAJOR_ALARM;
 		return SPL_BAD_DATA;
 	     }
@@ -258,10 +276,23 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
 		 epicsMutexUnlock(dpvt_ps->mlock);
 	     }
 	     psub->nevb = npts;
+             /* Print out data points */
+             if(debug) {
+                 printf("%s splineGetPoints X points: ...\n", psub->name);
+                 for(int i=0; i<npts; i++) {
+		    printf("%f ", xpts[i]);
+                 }
+                 printf("\n");
+                 printf("%s splineGetPoints Y points: ...\n", psub->name);
+                 for(int i=0; i<npts; i++) {
+		    printf("%f ", ypts[i]);
+                 }
+                 printf("\n");
+             }
 	     
 	   }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetPoints: alglib error");
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
@@ -283,10 +314,11 @@ static epicsInt32 splineGetDate(aSubRecord *psub){
   spline s;
   // Pointers to hold the returned values
   char* date = NULL; 
-
+  epicsInt32 debug;
   //Cast EPICS fields to correct types
   char* tnam; 
   tnam = (char*) psub->a;
+  debug = *(epicsInt32*) psub->b;
   
     try{
 	s = getSplineFromContainer(std::string(tnam));
@@ -310,9 +342,12 @@ static epicsInt32 splineGetDate(aSubRecord *psub){
 		((char*)psub->vala)[i]  = date[i];
 	      }
 	    }
+            if(debug) {
+         	printf("%s splineGetDate: calibration file date %s\n", psub->name, date);
+	    }
 	}
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetDate: alglib error");
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
@@ -338,16 +373,17 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
   epicsInt32 numDataPoints; 
   double* xpts = NULL; 
   double* ypts = NULL; 
-  int npts = 0;
-  int xnpts = 0;
-  int ynpts = 0;
+  epicsInt32 npts = 0;
+  epicsInt32 xnpts = 0;
+  epicsInt32 ynpts = 0;
   devicePvt_ts  *dpvt_ps = NULL;
   size_t nbytes = sizeof(double) * psub->nova;
+  epicsInt32 debug;
 
   //Cast EPICS fields to correct types
   char* tnam; 
   tnam = (char*) psub->a;
-  
+  debug = *(epicsInt32*) psub->b;
   dpvt_ps = (devicePvt_ts *)psub->dpvt;
     try{
 	s = getSplineFromContainer(std::string(tnam));
@@ -363,8 +399,10 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 	  /* Fetch the number of data points */   
 	  numDataPoints = s.get_num_points(); 
 	  *(epicsInt32 *)(psub->vala) = numDataPoints;
-	  printf("Num points splineGetInpParams: %d\n", numDataPoints); 
-	     
+          if(debug) {
+	      printf("%s splineGetInpParams Num points: %d\n",psub->name, numDataPoints); 
+          }	     
+
 	  /* Fetch the data points */
 	  /* clear waveform */
 	  epicsMutexMustLock(dpvt_ps->mlock); 
@@ -404,6 +442,19 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 	     epicsMutexUnlock(dpvt_ps->mlock);
 	 }
 	 psub->nevc = npts;
+         /* Print out data points */
+         if(debug) {
+             printf("%s splineGetInpPrms: X points: ...\n", psub->name);
+             for(int i=0; i<npts; i++) {
+	        printf("%f ", xpts[i]);
+             }
+             printf("\n");
+             printf("%s splineGetInpPrms: Y points: ...\n", psub->name);
+             for(int i=0; i<npts; i++) {
+	         printf("%f ", ypts[i]);
+             }
+             printf("\n");
+         }
 	     
 	 /* Fetch the date when the file was saved */
 	 s.get_date(date);
@@ -416,9 +467,12 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 		((char*)psub->vald)[i]  = date[i];
 	      }
 	 }
+         if(debug) {
+         	printf("%s splineGetInpPrms: calibration file date %s\n",psub->name, date);
+	 }
    }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: alglib error");
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
