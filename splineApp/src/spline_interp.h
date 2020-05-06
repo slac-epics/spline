@@ -48,6 +48,7 @@ class spline{
     int get_X_array(double *&xpts, int* npts);
     int get_Y_array(double *&ypts, int* npts);
     int get_date(char *&date);
+    bool check_input_inRange(double point, int dir);
 
   private:
 

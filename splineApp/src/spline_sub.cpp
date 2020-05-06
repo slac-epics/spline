@@ -84,12 +84,21 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
                   return SPL_NO_TRANS;
 	  }
 	  else {
-		  /*Calculate output, then set value a to the output*/
-		  out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
-		  if(debug) {
-                      printf("%s splineCalcOutput: out = %f\n", psub->name, out);
-                  }
-		  *(double *)(psub->vala) = out; 
+	          /* Make sure that the input value is in range */
+		  if(s.check_input_inRange(*in, *isInverse)) {
+        	      /*Calculate output, then set value a to the output*/
+		      out = (*isInverse) ? s.calc_inv(*in) : s.calc(*in);
+		      if(debug) {
+                         printf("%s splineCalcOutput: out = %f\n", psub->name, out);
+                      }
+		      *(double *)(psub->vala) = out;
+		  }
+                  /* The input value is not in range */
+		 else {
+		     recGblRecordError(S_dev_badArgument, (void*)psub, "splineCalcOutput: input out of range");
+		     psub->brsv = INVALID_ALARM;
+                     return SPL_BAD_DATA;
+		 } 
 	  }
     } catch (alglib::ap_error a) {
         recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");

@@ -12,6 +12,12 @@
 R2.0.4: - Renamed shell function from splineInit to splineBuild 
         - Graceful handling of invalid file name (disable processing + set BRSV)
 	- Graceful handling of invalid file content
+        - Graceful handling of subroutines return codes
+        - Using EPICS-defined data types in subroutines
+        - Subroutines errors handling using EPICS functions 
+        - Graceful exception handling
+        - Added sample database files to explain module usage
+        - Checking if input value is in range before performing spline transformation
 
 R2.0.3: - Renaming functions called by aSub record to have names 
           unique to the spline module.

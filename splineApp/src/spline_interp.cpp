@@ -192,6 +192,41 @@ spline::spline(std::string filename){
     }
 }
 
+/* check if input value is in range */
+bool spline::check_input_inRange(double point, int dir) {
+    double inRange;
+    double max;
+    double min;
+    /* If dir == 0 meaning the transformation is from X to Y check the X limits*/
+    if( dir == 0 ) {
+        max = get_max_X();
+        min = get_min_X();
+        if ((point >= min) && (point <= max)) {
+            inRange = true;
+        }
+        else {
+            inRange = false;
+        }
+    }
+    /*  If dir == 1 meaning the transformation is from Y to X check the Y limits */
+    else if( dir == 1 ) {
+        max = get_max_Y();
+        min = get_min_Y();
+        if ((point >= min) && (point <= max)) {
+            inRange = true;
+        }
+        else {
+            inRange = false;
+        }
+    }
+    /* Dir has an invalid value */
+    else {
+        inRange = false;
+    }
+  
+    return inRange;
+}
+
 /* get the limits on x and y from the data file */
 double spline::get_max_X() {
     double max = 0;
