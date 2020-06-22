@@ -79,7 +79,10 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
 	  /*If this is first call then initialize
 	  the spline*/
 	  if ( ! s.is_initialized() ) {
-		  recGblRecordError(S_dev_badInit, (void*)psub, "splineCalcOutput: no transformation");
+		  /* olny print out if debug is enabled */
+                  if(debug) {
+		  	recGblRecordError(S_dev_badInit, (void*)psub, "splineCalcOutput: no transformation");
+		  }
 		  psub->brsv = INVALID_ALARM;
                   return SPL_NO_TRANS;
 	  }
@@ -95,18 +98,24 @@ static epicsInt32 splineCalcOutput(aSubRecord *psub){
 		  }
                   /* The input value is not in range */
 		 else {
-		     recGblRecordError(S_dev_badArgument, (void*)psub, "splineCalcOutput: input out of range");
+		     if(debug) {
+		     	recGblRecordError(S_dev_badArgument, (void*)psub, "splineCalcOutput: input out of range");
+		     }
 		     psub->brsv = INVALID_ALARM;
                      return SPL_BAD_DATA;
 		 } 
 	  }
     } catch (alglib::ap_error a) {
-        recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+	if(debug) {
+        	recGblRecordError(S_dev_badRequest, (void*)psub, "splineCalcOutput: alglib error");
+	}
         psub->brsv = MAJOR_ALARM;
         return SPL_ALGLIB_ERR;
     }catch (std::exception& e) {
-        errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
-        return SPL_BAD_DATA;
+        if(debug) {
+		errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      	}
+	return SPL_BAD_DATA;
     }
   return SPL_SUCCESS;    
 }
@@ -134,8 +143,10 @@ static epicsInt32 splineGetLimits(aSubRecord *psub){
 	/*If this is first call then initialize
 	the spline*/
 	if ( ! s.is_initialized() ) {
-            recGblRecordError(S_dev_badInit, (void*)psub, "splineGetLimits: no transformation");
-            psub->brsv = INVALID_ALARM;
+            if(debug){
+	    	recGblRecordError(S_dev_badInit, (void*)psub, "splineGetLimits: no transformation");
+            }
+	    psub->brsv = INVALID_ALARM;
             return SPL_NO_TRANS;
         }
 	else {
@@ -158,11 +169,15 @@ static epicsInt32 splineGetLimits(aSubRecord *psub){
             }
 	 }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetLimits: alglib error");
+      if(debug){
+          recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetLimits: alglib error");
+      } 
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
-      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      if(debug){
+          errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      }
       return SPL_BAD_DATA;
   }
   return SPL_SUCCESS;    
@@ -190,7 +205,9 @@ static epicsInt32 splineGetNumPoints(aSubRecord *psub){
 	  /*If this is first call then initialize
 	  the spline*/
 	  if ( ! s.is_initialized() ) {
-		recGblRecordError(S_dev_badInit, (void*)psub, "splineGetNumPoints: no transformation");
+		if(debug) {
+			recGblRecordError(S_dev_badInit, (void*)psub, "splineGetNumPoints: no transformation");
+		}
 		psub->brsv = INVALID_ALARM;
 		return SPL_NO_TRANS;
 	  }
@@ -203,11 +220,15 @@ static epicsInt32 splineGetNumPoints(aSubRecord *psub){
 	       }
 	  }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetNumPoints: alglib error");
+      if(debug){
+      	recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetNumPoints: alglib error");
+      }
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
-      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      if(debug) {
+      	errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      }
       return SPL_BAD_DATA;
   }
 
@@ -242,8 +263,10 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
 	/*If this is first call then initialize
 	the spline*/
 	if ( ! s.is_initialized() ) {
-	     recGblRecordError(S_dev_badInit, (void*)psub, "splineGetPoints: no transformation");
-             psub->brsv = INVALID_ALARM;
+	     if(debug){
+	     	recGblRecordError(S_dev_badInit, (void*)psub, "splineGetPoints: no transformation");
+             }
+	     psub->brsv = INVALID_ALARM;
 	     return SPL_NO_TRANS;
 	}
 	else {
@@ -266,7 +289,9 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
 		npts = xnpts;
 	     }
 	     else {
-		printf("%s splineGetPoints: X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", psub->name, xnpts, ynpts);
+	        if(debug){
+        		printf("%s splineGetPoints: X and Y number of data points differ. Exiting. xnpts: %d, ynpts: %d\n", psub->name, xnpts, ynpts);
+		}
 		psub->brsv = MAJOR_ALARM;
 		return SPL_BAD_DATA;
 	     }
@@ -301,11 +326,15 @@ static epicsInt32 splineGetPoints(aSubRecord *psub){
 	     
 	   }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetPoints: alglib error");
+      if(debug){
+      	recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetPoints: alglib error");
+      }
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
-      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      if(debug){
+      	errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      }
       return SPL_BAD_DATA;
   }
 
@@ -334,7 +363,9 @@ static epicsInt32 splineGetDate(aSubRecord *psub){
 	/*If this is first call then initialize
 	the spline*/
 	if ( ! s.is_initialized() ) {
-	      recGblRecordError(S_dev_badInit, (void*)psub, "splineGetDate: no transformation");
+	      if(debug) {
+	      	recGblRecordError(S_dev_badInit, (void*)psub, "splineGetDate: no transformation");
+	      }
 	      psub->brsv = INVALID_ALARM;
 	      return SPL_NO_TRANS;
 	}
@@ -356,11 +387,15 @@ static epicsInt32 splineGetDate(aSubRecord *psub){
 	    }
 	}
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetDate: alglib error");
+      if(debug){
+      	recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetDate: alglib error");
+      }
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
-      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      if(debug){
+      	errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      }
       return SPL_BAD_DATA;
   }
 
@@ -399,7 +434,9 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 	/*If this is first call then initialize
 	the spline*/
 	if ( ! s.is_initialized() ) {
-		recGblRecordError(S_dev_badInit, (void*)psub, "splineGetInpPrms: no transformation");
+		if(debug){
+			recGblRecordError(S_dev_badInit, (void*)psub, "splineGetInpPrms: no transformation");
+		}
 		psub->brsv = INVALID_ALARM;
 		return SPL_NO_TRANS;
 	}
@@ -432,7 +469,9 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 	      npts = xnpts;
 	  }
 	  else {
-             recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: X and Y number of data points differ");
+	     if(debug){
+             	recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: X and Y number of data points differ");
+	     }
 	     psub->brsv = MAJOR_ALARM;
 	     return SPL_BAD_DATA;
 	  }
@@ -481,11 +520,15 @@ static epicsInt32 splineGetInpPrms(aSubRecord *psub){
 	 }
    }
   } catch (alglib::ap_error a) {
-      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: alglib error");
+      if(debug){
+	      recGblRecordError(S_dev_badRequest, (void*)psub, "splineGetInpPrms: alglib error");
+      }
       psub->brsv = MAJOR_ALARM;
       return SPL_ALGLIB_ERR;
   }catch (std::exception& e) {
-      errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      if(debug){
+      	errlogSevPrintf(errlogMajor, "%s exception: %s", psub->name, e.what());
+      }
       return SPL_BAD_DATA;
   }
 

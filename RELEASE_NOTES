@@ -9,6 +9,8 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+R2.0.5: - Wrapped all error messages in debug flag
+
 R2.0.4: - Renamed shell function from splineInit to splineBuild 
         - Graceful handling of invalid file name (disable processing + set BRSV)
 	- Graceful handling of invalid file content
