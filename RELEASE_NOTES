@@ -9,6 +9,13 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+R2.0.6: - Update CONFIG_SITE to add alglib variables in the package area,
+          allowing me to remove CONFIG_SITE.Commmon.*
+          Add LINUIXRT_BUILDROOT_VESRION
+          remove install of alblib from src/Makefile.
+
+Wrapped all error messages in debug flag
+
 R2.0.5: - Wrapped all error messages in debug flag
 
 R2.0.4: - Renamed shell function from splineInit to splineBuild 

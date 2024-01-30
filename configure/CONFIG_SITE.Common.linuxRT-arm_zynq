@@ -1,3 +1,0 @@
-ALGLIB_TOP=$(ALGLIB)/buildroot-2016.11.1-arm_zynq
-ALGLIB_LIB=$(ALGLIB_TOP)/lib
-ALGLIB_INCLUDE = -I$(ALGLIB_TOP)/include
