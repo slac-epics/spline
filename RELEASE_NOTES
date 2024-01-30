@@ -9,6 +9,9 @@
 #  Auth: 10-Jun-2017, Jacob DeFilippis         (JPDEF)
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
+
+R2.0.7  - Chg CONFIG_SITE, fix location of a ALGLIB_TOP
+
 R2.0.6: - Update CONFIG_SITE to add alglib variables in the package area,
           allowing me to remove CONFIG_SITE.Commmon.*
           Add LINUIXRT_BUILDROOT_VESRION
