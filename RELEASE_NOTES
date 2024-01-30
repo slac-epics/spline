@@ -10,6 +10,8 @@
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
 
+R2.0.8  - Chg CONFIG_SITE to add linuxRT-i686, linuxRT-x86_64 and coldfire
+
 R2.0.7  - Chg CONFIG_SITE, fix location of a ALGLIB_TOP
 
 R2.0.6: - Update CONFIG_SITE to add alglib variables in the package area,
