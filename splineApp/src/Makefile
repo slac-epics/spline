@@ -5,8 +5,6 @@ include $(TOP)/configure/CONFIG
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 #========================================
 
-
-
 # ================================================
 # Build the IOC application
 # ================================================
@@ -22,9 +20,8 @@ LIBRARY += spline
 
 # PATH TO THE EXTERNAL LIBRARIES
 #===================================
-USR_INCLUDES += $(ALGLIB_INCLUDE)
+USR_INCLUDES +=  -I $(ALGLIB_INCLUDE)
 alglib_DIR=$(ALGLIB_LIB)
-LIB_INSTALLS += $(ALGLIB_LIB)/libalglib.*
 
 # LINK EXTERNAL LIBRARIES STATICALLY
 #====================================
