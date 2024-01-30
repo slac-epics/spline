@@ -58,8 +58,7 @@ MY_PACKAGE_SITE_TOP = /afs/slac/g/controls/development/users/lorelli/misc
 # ======================================
 ALGLIB_PACKAGE_NAME  = alglib
 ALGLIB_VERSION       = 3.14.0
-#ALGLIB_TOP           = $(MY_PACKAGE_SITE_TOP)/$(ALGLIB_PACKAGE_NAME)/$(ALGLIB_VERSION)
-ALGLIB_TOP           = $(MY_PACKAGE_SITE_TOP)/$(ALGLIB_PACKAGE_NAME)-$(ALGLIB_VERSION)
+ALGLIB_TOP           = $(PACKAGE_SITE_TOP)/$(ALGLIB_PACKAGE_NAME)/$(ALGLIB_VERSION)
 ALGLIB_LIB           = $(ALGLIB_TOP)/$(T_A)/lib
 ALGLIB_INCLUDE       = $(ALGLIB_TOP)/$(T_A)/include
 
