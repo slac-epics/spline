@@ -1,4 +1,4 @@
- # CONFIG_SITE
+# CONFIG_SITE
 
 # Make any application-specific changes to the EPICS build
 #   configuration variables in this file.
@@ -7,7 +7,6 @@
 #   CONFIG_SITE.$(EPICS_HOST_ARCH).Common
 #   CONFIG_SITE.Common.$(T_A)
 #   CONFIG_SITE.$(EPICS_HOST_ARCH).$(T_A)
-
 # CHECK_RELEASE controls the consistency checking of the support
 #   applications pointed to by the RELEASE* files.
 # Normally CHECK_RELEASE should be set to YES.
@@ -19,12 +18,15 @@ CHECK_RELEASE = YES
 # Set this when you only want to compile this application
 #   for a subset of the cross-compiled target architectures
 #   that Base is built for.
+#CROSS_COMPILER_TARGET_ARCHS = vxWorks-mpc8540 vxWorks-ppc604_long vxWorks-ppc604_altivec
+#CROSS_COMPILER_TARGET_ARCHS = linuxRT-arm_zynq RTEMS-mvme3100
+CROSS_COMPILER_TARGET_ARCHS = RTEMS-beatnik RTEMS-mvme3100 RTEMS-uC5282 linuxRT-x86_64 linuxRT-i686 
+
 #CROSS_COMPILER_TARGET_ARCHS := $(filter-out vxWorks%,           $(CROSS_COMPILER_TARGET_ARCHS))
 
 # If you only want to build for the host then uncomment the line below and no cross targets
 # will be built.  Remember EPICS will build for the HOST ARCH by default.
-CROSS_COMPILER_TARGET_ARCHS = RTEMS-uC5282 RTEMS-mvme3100 RTEMS-beatnik linuxRT-x86_64 linuxRT-i686
-
+#CROSS_COMPILER_TARGET_ARCHS =
 
 # To install files into a location other than $(TOP) define
 #   INSTALL_LOCATION here.
@@ -41,12 +43,6 @@ IOCS_APPL_TOP  = $(INSTALL_LOCATION)
 INSTALL_LOCATION_STARTUP += $(INSTALL_LOCATION)/startup
 DIRECTORY_TARGETS += $(INSTALL_LOCATION_STARTUP)
 
-# =============================
-# Build Application Statically
-# =============================
-SHARED_LIBRARIES=NO
-STATIC_BUILD=YES
-
 # =================================
 # Define the archiecture versions
 # =================================
@@ -59,13 +55,21 @@ MY_PACKAGE_SITE_TOP = /afs/slac/g/controls/development/users/lorelli/misc
 ALGLIB_PACKAGE_NAME  = alglib
 ALGLIB_VERSION       = 3.14.0
 ALGLIB_TOP           = $(PACKAGE_SITE_TOP)/$(ALGLIB_PACKAGE_NAME)/$(ALGLIB_VERSION)
+
+# NOTE: This doesn't work using PKG_ARCH as would normally be the case. You must use T_A
 ALGLIB_LIB           = $(ALGLIB_TOP)/$(T_A)/lib
 ALGLIB_INCLUDE       = $(ALGLIB_TOP)/$(T_A)/include
+
+# =============================
+# Build Application Statically
+# =============================
+SHARED_LIBRARIES=NO
+STATIC_BUILD=YES
 
 # These allow developers to override the CONFIG_SITE variable
 # settings without having to modify the configure/CONFIG_SITE
 # file itself.
--include $(TOP)/../CONFIG_SITE.local
--include $(TOP)/configure/CONFIG_SITE.local
+#-include $(TOP)/../CONFIG_SITE.local
+#-include $(TOP)/configure/CONFIG_SITE.local
 
 # End of file
