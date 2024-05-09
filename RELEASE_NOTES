@@ -10,6 +10,8 @@
 #  Rev:  dd-mmm-yyyy, Reviewer's Name    (USERNAME)
 #--------------------------------------------------------------
 
+R2.0.0-1.0.0: Added support for rhel7
+
 R2.0.0: First release with the new Git Workflow.
 	- Alglib bumped to 3.14.0
 
