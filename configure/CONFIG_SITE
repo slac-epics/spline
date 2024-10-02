@@ -48,7 +48,6 @@ DIRECTORY_TARGETS += $(INSTALL_LOCATION_STARTUP)
 # =================================
 LINUXRT_BUILDROOT_VERSION=buildroot-2019.08
 
-MY_PACKAGE_SITE_TOP = /afs/slac/g/controls/development/users/lorelli/misc
 # ======================================
 # Support for spline interpolation
 # ======================================
